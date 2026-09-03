@@ -9,17 +9,15 @@ import "dotenv/config";
 import { google } from "googleapis";
 
 const TABS = {
-  accounts: "Accounts",
   year: "Full-Year Memberships",
   semester: "Semester Memberships",
   purchases: "Purchases",
 };
 
 const HEADERS = {
-  [TABS.accounts]: ["Created At (UTC)", "Name", "Email", "Sign-up Method"],
   [TABS.year]: ["Purchased At (UTC)", "Name", "Email", "Valid Until", "Amount Paid (USD)", "Promo Code", "Order ID"],
   [TABS.semester]: ["Purchased At (UTC)", "Name", "Email", "Valid Until", "Amount Paid (USD)", "Promo Code", "Order ID"],
-  [TABS.purchases]: ["Purchased At (UTC)", "Name", "Email", "Product", "Amount (USD)", "Session Date", "Payment Method", "Promo Code", "Order ID"],
+  [TABS.purchases]: ["Purchased At (UTC)", "Name", "Email", "Product", "Amount (USD)", "Session Date", "Skill Level", "Payment Method", "Promo Code", "Order ID"],
 };
 
 const sheetId = process.env.GOOGLE_SHEET_ID;
@@ -60,7 +58,7 @@ await sheets.spreadsheets.values.batchUpdate({
     })),
   },
 });
-console.log("Headers written on all four tabs.");
+console.log("Headers written on all three tabs.");
 
 // Freeze and bold each header so the sheet is usable by hand.
 const after = await sheets.spreadsheets.get({ spreadsheetId: sheetId });

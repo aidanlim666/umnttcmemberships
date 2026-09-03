@@ -1,14 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { LangToggle } from "@/components/LangToggle";
-import { MembershipBadge } from "@/components/MembershipBadge";
-import { LogoutButton } from "@/components/LogoutButton";
-import { getViewer } from "@/lib/session";
 import { getT } from "@/i18n/server";
 
 export async function Header() {
-  const [{ lang, t }, viewer] = await Promise.all([getT(), getViewer()]);
-  const initial = (viewer?.name || viewer?.email || "?").trim().charAt(0).toUpperCase();
+  const { t } = await getT();
 
   return (
     <header className="sticky top-0 z-40">
@@ -26,54 +22,9 @@ export async function Header() {
             </span>
           </Link>
 
-          <nav className="ml-2 hidden items-center gap-1 text-[13px] font-semibold sm:flex">
-            <Link href="/" className="focus-ring rounded-full px-3 py-1.5 hover:bg-white/10">
-              {t("nav.shop")}
-            </Link>
-            {viewer && (
-              <Link href="/account" className="focus-ring rounded-full px-3 py-1.5 hover:bg-white/10">
-                {t("nav.account")}
-              </Link>
-            )}
-          </nav>
-
-          {/* Top-right cluster: language toggle, then identity + membership status. */}
+          {/* Top-right: the language toggle, and nothing else — there are no accounts. */}
           <div className="ml-auto flex items-center gap-2">
             <LangToggle />
-
-            {viewer ? (
-              <div className="flex items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-2">
-                {/* The avatar is the account link on mobile, where the name is hidden. */}
-                <Link
-                  href="/account"
-                  aria-label={t("nav.account")}
-                  className="focus-ring grid h-7 w-7 place-items-center rounded-full bg-[var(--gold)] text-[12px] font-extrabold text-[var(--maroon-deep)]"
-                >
-                  {initial}
-                </Link>
-                <div className="hidden leading-tight sm:block">
-                  <Link href="/account" className="focus-ring block max-w-[9rem] truncate text-[12px] font-bold">
-                    {viewer.name ?? viewer.email}
-                  </Link>
-                  <span className="mt-0.5 block">
-                    <MembershipBadge tier={viewer.membership?.tier ?? null} lang={lang} />
-                  </span>
-                </div>
-                <span className="sm:hidden">
-                  <MembershipBadge tier={viewer.membership?.tier ?? null} lang={lang} />
-                </span>
-                <LogoutButton label={t("nav.logout")} />
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <Link href="/login" className="btn btn-ghost px-3 py-1.5 text-[13px]">
-                  {t("nav.login")}
-                </Link>
-                <Link href="/register" className="btn btn-gold px-3 py-1.5 text-[13px]">
-                  {t("nav.register")}
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -2,36 +2,20 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { PriceTag } from "@/components/PriceTag";
 import type { LocalizedProduct } from "@/lib/products";
-import type { Eligibility } from "@/lib/eligibility";
 import { translator, type Lang } from "@/i18n/config";
-
-/** Short status ribbon shown over the thumbnail when a product is not buyable. */
-function statusChip(reason: Eligibility["reason"], t: ReturnType<typeof translator>) {
-  switch (reason) {
-    case "includedInMembership":
-      return <span className="chip chip-gold">{t("badge.includedShort")}</span>;
-    case "alreadyMember":
-      return <span className="chip chip-gold">{t("badge.owned")}</span>;
-    case "priceTbd":
-      return <span className="chip chip-muted">{t("product.priceTbd")}</span>;
-    default:
-      return null;
-  }
-}
 
 export function ProductCard({
   product,
-  eligibility,
   lang,
   featured = false,
 }: {
   product: LocalizedProduct;
-  eligibility: Eligibility;
   lang: Lang;
   featured?: boolean;
 }) {
   const t = translator(lang);
-  const chip = statusChip(eligibility.reason, t);
+  // The only thing that stops a product being bought now is having no price yet.
+  const buyable = product.priceCents !== null;
 
   return (
     <Link
@@ -44,7 +28,7 @@ export function ProductCard({
         </span>
         <span className="absolute left-2 top-2 flex gap-1">
           {featured && <span className="chip chip-maroon">{t("badge.bestValue")}</span>}
-          {chip}
+          {!buyable && <span className="chip chip-muted">{t("product.priceTbd")}</span>}
         </span>
       </div>
 
@@ -60,10 +44,10 @@ export function ProductCard({
           <PriceTag cents={product.priceCents} tbdLabel={t("product.priceTbd")} />
           <span
             className={`btn px-3 py-1.5 text-[12px] ${
-              eligibility.allowed ? "btn-primary" : "btn-ghost opacity-70"
+              buyable ? "btn-primary" : "btn-ghost opacity-70"
             }`}
           >
-            {eligibility.allowed ? t("product.buy") : t("product.viewDetails")}
+            {buyable ? t("product.buy") : t("product.viewDetails")}
           </span>
         </div>
       </div>

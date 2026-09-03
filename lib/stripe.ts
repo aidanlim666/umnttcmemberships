@@ -1,3 +1,4 @@
+import "@/lib/net";
 import Stripe from "stripe";
 
 export const stripeConfigured = () => Boolean(process.env.STRIPE_SECRET_KEY);

@@ -22,10 +22,7 @@ export async function POST(request: Request) {
   const result = await loadPayableOrder(parsed.data.orderId);
   if ("error" in result) {
     if (result.error === "alreadyPaid") return NextResponse.json({ ok: true });
-    return NextResponse.json(
-      { error: result.error },
-      { status: result.error === "unauthenticated" ? 401 : 409 },
-    );
+    return NextResponse.json({ error: result.error }, { status: 409 });
   }
 
   const intent = await stripe().paymentIntents.retrieve(parsed.data.paymentIntentId);

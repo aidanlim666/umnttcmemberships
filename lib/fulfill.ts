@@ -30,7 +30,7 @@ export async function fulfillOrder(
   const outcome = await prisma.$transaction(async (tx) => {
     const order = await tx.order.findUnique({
       where: { id: orderId },
-      include: { product: true, user: true },
+      include: { product: true },
     });
     if (!order) return { kind: "unknown" as const };
 
@@ -46,7 +46,7 @@ export async function fulfillOrder(
     if (tier) {
       const { startsAt, endsAt } = membershipWindow(tier);
       await tx.membership.create({
-        data: { userId: order.userId, tier, startsAt, endsAt, orderId: order.id },
+        data: { tier, startsAt, endsAt, orderId: order.id },
       });
       membership = { tier, endsAt };
     }
@@ -59,8 +59,9 @@ export async function fulfillOrder(
     return { status: "alreadyFulfilled", orderId: outcome.order.id };
   }
 
-  const buyerName = outcome.order.user.name ?? outcome.order.user.email ?? "Unknown";
-  const buyerEmail = outcome.order.user.email ?? "";
+  // The buyer named themselves at purchase; there is no account to look up.
+  const buyerName = outcome.order.buyerName;
+  const buyerEmail = outcome.order.buyerEmail;
 
   // Outside the transaction: a slow or failing Sheets call must not roll back the sale.
   // A membership lands on two tabs — the ledger, and its own roster.
@@ -84,6 +85,7 @@ export async function fulfillOrder(
     productName: outcome.order.product.nameEn,
     amountCents: outcome.order.amountCents,
     eventDate: outcome.order.eventDate,
+    skillLevel: outcome.order.skillLevel,
     orderId: outcome.order.id,
     paymentMethod: PROVIDER_LABEL[provider],
     promoCode: outcome.order.promoCode,

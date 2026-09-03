@@ -47,23 +47,9 @@ async function main() {
     });
   }
 
-  // ---- Accounts (keyed on email, column C)
-  const seenEmails = await existingKeys(TABS.accounts, 2);
-  const users = await prisma.user.findMany({ orderBy: { createdAt: "asc" } });
-  const accountRows = users
-    .filter((u) => u.email && !seenEmails.has(u.email))
-    .map((u) => [
-      u.createdAt.toISOString(),
-      u.name ?? u.email!,
-      u.email!,
-      u.passwordHash ? "Password" : "Google",
-    ]);
-  await append(TABS.accounts, accountRows);
-  console.log(`${TABS.accounts}: added ${accountRows.length} (skipped ${users.length - accountRows.length})`);
-
   // ---- Memberships (keyed on order id, column G)
   const memberships = await prisma.membership.findMany({
-    include: { user: true, order: true },
+    include: { order: true },
     orderBy: { createdAt: "asc" },
   });
   for (const [tier, tab] of [["YEAR", TABS.year], ["FALL", TABS.semester]] as const) {
@@ -72,8 +58,8 @@ async function main() {
       .filter((m) => m.tier === tier && !seen.has(m.orderId))
       .map((m) => [
         m.createdAt.toISOString(),
-        m.user.name ?? m.user.email ?? "Unknown",
-        m.user.email ?? "",
+        m.order.buyerName,
+        m.order.buyerEmail,
         isoDate(m.endsAt),
         money(m.order.amountCents),
         m.order.promoCode ?? "",
@@ -84,21 +70,22 @@ async function main() {
   }
 
   // ---- Purchases (keyed on order id, column I)
-  const seenOrders = await existingKeys(TABS.purchases, 8);
+  const seenOrders = await existingKeys(TABS.purchases, 9);
   const orders = await prisma.order.findMany({
     where: { status: "PAID" },
-    include: { user: true, product: true },
+    include: { product: true },
     orderBy: { createdAt: "asc" },
   });
   const purchaseRows = orders
     .filter((o) => !seenOrders.has(o.id))
     .map((o) => [
       (o.fulfilledAt ?? o.createdAt).toISOString(),
-      o.user.name ?? o.user.email ?? "Unknown",
-      o.user.email ?? "",
+      o.buyerName,
+      o.buyerEmail,
       o.product.nameEn,
       money(o.amountCents),
       o.eventDate ? isoDate(o.eventDate) : "",
+      o.skillLevel ?? "",
       o.provider ? (PROVIDER_LABEL[o.provider] ?? o.provider) : "",
       o.promoCode ?? "",
       o.id,

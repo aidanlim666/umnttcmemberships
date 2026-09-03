@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { getViewerId } from "@/lib/session";
-import { checkEligibility } from "@/lib/eligibility";
 import { fromISODate, ISO_DATE_RE, isBookable } from "@/lib/dates";
 import { weekdaysFor } from "@/lib/catalog";
 import { applyPromo } from "@/lib/promos";
@@ -10,34 +8,35 @@ import { fulfillOrder } from "@/lib/fulfill";
 
 const bodySchema = z.object({
   slug: z.string().min(1),
+  buyerName: z.string().trim().min(1).max(120),
+  buyerEmail: z.email().max(200),
+  // Asked only for dated day passes, and optional even there.
+  skillLevel: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]).nullish(),
   eventDate: z.string().regex(ISO_DATE_RE).nullish(),
   promoCode: z.string().max(64).nullish(),
 });
 
+/**
+ * Creates an order. There are no accounts: the buyer identifies themselves here, and the
+ * details are taken on trust because nothing about a name or email needs to be trusted —
+ * they are for the club's records, not for access control.
+ *
+ * What the server does still decide for itself is everything that touches money: the price
+ * comes from the Product row, the promo code is re-checked here, and the session date must
+ * be a night the club actually runs.
+ */
 export async function POST(request: Request) {
-  const userId = await getViewerId();
-  if (!userId) {
-    return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  }
-
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: "badRequest" }, { status: 400 });
   }
 
   const product = await prisma.product.findUnique({ where: { slug: parsed.data.slug } });
-  if (!product) {
+  if (!product?.active) {
     return NextResponse.json({ error: "notFound" }, { status: 404 });
   }
-
-  // The UI already disables ineligible products; this is the check that actually counts.
-  const memberships = await prisma.membership.findMany({
-    where: { userId },
-    select: { tier: true, endsAt: true },
-  });
-  const eligibility = checkEligibility(memberships, product);
-  if (!eligibility.allowed || product.priceCents === null) {
-    return NextResponse.json({ error: eligibility.reason }, { status: 403 });
+  if (product.priceCents === null) {
+    return NextResponse.json({ error: "priceTbd" }, { status: 403 });
   }
 
   let eventDate: Date | null = null;
@@ -49,8 +48,7 @@ export async function POST(request: Request) {
     eventDate = fromISODate(iso);
   }
 
-  // The code is re-checked here against the product's own price. The browser sends a
-  // code, never an amount, so a tampered preview response cannot discount anything.
+  // The browser sends a code, never an amount.
   const { amountCents, discountCents, promo } = applyPromo(
     product.priceCents,
     parsed.data.promoCode,
@@ -58,8 +56,11 @@ export async function POST(request: Request) {
 
   const order = await prisma.order.create({
     data: {
-      userId,
       productId: product.id,
+      buyerName: parsed.data.buyerName,
+      buyerEmail: parsed.data.buyerEmail.toLowerCase(),
+      // A level on a membership would be meaningless, so it is only kept where it is asked.
+      skillLevel: product.requiresDate ? (parsed.data.skillLevel ?? null) : null,
       amountCents,
       discountCents,
       promoCode: promo?.code ?? null,
@@ -68,8 +69,7 @@ export async function POST(request: Request) {
     select: { id: true },
   });
 
-  // A code worth the full price leaves nothing to charge, so there is no processor to
-  // send them to — grant it here and send them straight to the confirmation.
+  // A code worth the full price leaves nothing to charge.
   if (amountCents === 0) {
     await fulfillOrder(order.id, "PROMO", `promo:${order.id}`);
     return NextResponse.json({ orderId: order.id, free: true });

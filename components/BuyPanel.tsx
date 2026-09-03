@@ -2,79 +2,57 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useLang } from "@/i18n/LangProvider";
 import { DatePicker } from "@/components/DatePicker";
 import { formatUsd } from "@/lib/money";
-import type { Eligibility } from "@/lib/eligibility";
-
-const REASON_KEY = {
-  includedInMembership: "product.included",
-  alreadyMember: "product.alreadyMember",
-  priceTbd: "product.priceTbd",
-  inactive: "product.inactive",
-  ok: "product.buy",
-} as const;
 
 const DATE_SECTION_ID = "choose-session-date";
+
+const LEVELS = ["BEGINNER", "INTERMEDIATE", "ADVANCED"] as const;
+type Level = (typeof LEVELS)[number];
+
+const LEVEL_KEY = {
+  BEGINNER: "buyer.levelBeginner",
+  INTERMEDIATE: "buyer.levelIntermediate",
+  ADVANCED: "buyer.levelAdvanced",
+} as const;
 
 export function BuyPanel({
   slug,
   requiresDate,
-  eligibility,
-  isLoggedIn,
+  purchasable,
   priceLabel,
   allowedWeekdays = null,
 }: {
   slug: string;
   requiresDate: boolean;
-  eligibility: Eligibility;
-  isLoggedIn: boolean;
+  /** False only when the product has no price yet. */
+  purchasable: boolean;
   priceLabel: string;
   allowedWeekdays?: readonly number[] | null;
 }) {
   const { t } = useLang();
   const router = useRouter();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [level, setLevel] = useState<Level | "">("");
   const [date, setDate] = useState<string | null>(null);
   const [promo, setPromo] = useState<AppliedPromo | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Browsing is public; only the act of buying requires an account.
-  if (!isLoggedIn) {
-    return (
-      <div className="space-y-3">
-        {requiresDate && eligibility.allowed && (
-          <DateSection date={date} setDate={setDate} allowedWeekdays={allowedWeekdays} />
-        )}
-        <Link
-          href={`/login?next=${encodeURIComponent(`/products/${slug}`)}`}
-          className="btn btn-primary w-full py-3 text-[15px]"
-        >
-          {t("product.loginToBuy")}
-        </Link>
-
-        <StickyBar priceLabel={promo ? formatUsd(promo.amountCents) : priceLabel}>
-          <Link
-            href={`/login?next=${encodeURIComponent(`/products/${slug}`)}`}
-            className="btn btn-primary px-6 py-2.5 text-[14px]"
-          >
-            {t("product.loginToBuy")}
-          </Link>
-        </StickyBar>
-      </div>
-    );
-  }
-
-  if (!eligibility.allowed) {
+  if (!purchasable) {
     return (
       <div className="rounded-xl border border-[#f2dca5] bg-[var(--gold-wash)] px-4 py-3 text-center text-[13px] font-bold text-[#7a5200]">
-        {t(REASON_KEY[eligibility.reason])}
+        {t("product.priceTbd")}
       </div>
     );
   }
 
+  const missingDetails = !name.trim() || !email.trim();
   const missingDate = requiresDate && !date;
+  const blocked = missingDetails || missingDate;
 
   async function buy() {
     setBusy(true);
@@ -83,14 +61,17 @@ export function BuyPanel({
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ slug, eventDate: date, promoCode: promo?.code ?? null }),
+        body: JSON.stringify({
+          slug,
+          buyerName: name.trim(),
+          buyerEmail: email.trim(),
+          skillLevel: level || null,
+          eventDate: date,
+          promoCode: promo?.code ?? null,
+        }),
       });
-      if (res.status === 401) {
-        router.push(`/login?next=${encodeURIComponent(`/products/${slug}`)}`);
-        return;
-      }
       if (!res.ok) {
-        setError(t("auth.errorGeneric"));
+        setError(t("buyer.error"));
         return;
       }
       const { orderId, free } = (await res.json()) as { orderId: string; free: boolean };
@@ -98,14 +79,69 @@ export function BuyPanel({
       router.push(free ? `/checkout/${orderId}/success` : `/checkout/${orderId}`);
       router.refresh();
     } catch {
-      setError(t("auth.errorGeneric"));
+      setError(t("buyer.error"));
     } finally {
       setBusy(false);
     }
   }
 
+  const buttonLabel = missingDetails
+    ? t("buyer.needDetails")
+    : missingDate
+      ? t("product.dateRequired")
+      : t("product.buy");
+
   return (
     <div className="space-y-3">
+      <div className="space-y-2.5">
+        <label className="block">
+          <span className="mb-1 block text-[12.5px] font-bold">{t("buyer.name")}</span>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="name"
+            className="field"
+          />
+        </label>
+
+        <label className="block">
+          <span className="mb-1 block text-[12.5px] font-bold">{t("buyer.email")}</span>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            autoComplete="email"
+            className="field"
+          />
+          <span className="mt-1 block text-[11px] text-[var(--ink-3)]">{t("buyer.emailHint")}</span>
+        </label>
+
+        {/* Only dated day passes ask this — it exists to place a new player in the right group. */}
+        {requiresDate && (
+          <fieldset className="block border-0 p-0">
+            <legend className="mb-1.5 block text-[12.5px] font-bold">{t("buyer.level")}</legend>
+            <div className="grid grid-cols-3 gap-1.5">
+              {LEVELS.map((l) => (
+                <button
+                  key={l}
+                  type="button"
+                  aria-pressed={level === l}
+                  onClick={() => setLevel(level === l ? "" : l)}
+                  className={[
+                    "focus-ring rounded-lg border px-2 py-1.5 text-[12px] font-semibold transition-colors",
+                    level === l
+                      ? "border-[var(--maroon)] bg-[var(--maroon)] text-white"
+                      : "border-[var(--line-strong)] bg-white text-[var(--ink-2)] hover:bg-[var(--gold-wash)]",
+                  ].join(" ")}
+                >
+                  {t(LEVEL_KEY[l])}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        )}
+      </div>
+
       {requiresDate && (
         <DateSection date={date} setDate={setDate} allowedWeekdays={allowedWeekdays} />
       )}
@@ -121,22 +157,22 @@ export function BuyPanel({
       <button
         type="button"
         onClick={buy}
-        disabled={busy || missingDate}
+        disabled={busy || blocked}
         className="btn btn-primary w-full py-3 text-[15px]"
       >
-        {missingDate ? t("product.dateRequired") : t("product.buy")}
+        {buttonLabel}
       </button>
 
-      {/* Mirrors the inline button exactly, so the bar never promises an action the
-          page cannot deliver — the calendar sits directly above it either way. */}
+      {/* Mirrors the inline button exactly, so the bar never promises an action the page
+          cannot deliver — the form sits directly above it either way. */}
       <StickyBar priceLabel={promo ? formatUsd(promo.amountCents) : priceLabel}>
         <button
           type="button"
           onClick={buy}
-          disabled={busy || missingDate}
+          disabled={busy || blocked}
           className="btn btn-primary px-6 py-2.5 text-[14px]"
         >
-          {missingDate ? t("product.dateRequired") : t("product.buy")}
+          {buttonLabel}
         </button>
       </StickyBar>
     </div>
@@ -156,9 +192,7 @@ function StickyBar({
 }) {
   return (
     <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-[var(--line)] bg-[var(--surface)]/95 px-4 py-2.5 backdrop-blur lg:hidden">
-      <span className="num display text-xl font-extrabold text-[var(--price)]">
-        {priceLabel}
-      </span>
+      <span className="num display text-xl font-extrabold text-[var(--price)]">{priceLabel}</span>
       <span className="ml-auto">{children}</span>
     </div>
   );

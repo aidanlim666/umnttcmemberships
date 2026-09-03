@@ -18,10 +18,7 @@ export async function POST(request: Request) {
   if ("error" in result) {
     // The webhook may have fulfilled it first — that is a success from the buyer's view.
     if (result.error === "alreadyPaid") return NextResponse.json({ ok: true });
-    return NextResponse.json(
-      { error: result.error },
-      { status: result.error === "unauthenticated" ? 401 : 409 },
-    );
+    return NextResponse.json({ error: result.error }, { status: 409 });
   }
 
   const capture = await capturePayPalOrder(parsed.data.paypalOrderId);

@@ -1,25 +1,22 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getT } from "@/i18n/server";
-import { getViewer } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { localize } from "@/lib/products";
 import { formatUsd } from "@/lib/money";
 import { formatEventDate } from "@/lib/dates";
-import { MembershipBadge } from "@/components/MembershipBadge";
 
 export default async function SuccessPage({
   params,
 }: PageProps<"/checkout/[orderId]/success">) {
   const { orderId } = await params;
-  const [{ lang, t }, viewer] = await Promise.all([getT(), getViewer()]);
-  if (!viewer) redirect("/login");
+  const { lang, t } = await getT();
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: { product: true },
   });
-  if (!order || order.userId !== viewer.id) notFound();
+  if (!order) notFound();
 
   const product = localize(order.product, lang);
 
@@ -56,15 +53,12 @@ export default async function SuccessPage({
           <span className="num text-[11px] text-[var(--ink-3)]">
             {t("success.orderId")} {order.id.slice(-8).toUpperCase()}
           </span>
-          <MembershipBadge tier={viewer.membership?.tier ?? null} lang={lang} />
+          <span className="truncate text-[11px] text-[var(--ink-3)]">{order.buyerEmail}</span>
         </div>
       </div>
 
-      <div className="mt-4 flex gap-2">
-        <Link href="/account" className="btn btn-primary flex-1 py-2.5 text-[14px]">
-          {t("success.toAccount")}
-        </Link>
-        <Link href="/" className="btn btn-ghost flex-1 py-2.5 text-[14px]">
+      <div className="mt-4">
+        <Link href="/" className="btn btn-primary w-full py-2.5 text-[14px]">
           {t("success.toShop")}
         </Link>
       </div>

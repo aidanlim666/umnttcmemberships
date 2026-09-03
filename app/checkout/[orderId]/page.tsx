@@ -1,6 +1,5 @@
 import { notFound, redirect } from "next/navigation";
 import { getT } from "@/i18n/server";
-import { getViewer } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { localize } from "@/lib/products";
 import { formatUsd } from "@/lib/money";
@@ -12,15 +11,13 @@ import { PayPanel } from "@/components/PayPanel";
 
 export default async function CheckoutPage({ params }: PageProps<"/checkout/[orderId]">) {
   const { orderId } = await params;
-  const [{ lang, t }, viewer] = await Promise.all([getT(), getViewer()]);
-
-  if (!viewer) redirect(`/login?next=${encodeURIComponent(`/checkout/${orderId}`)}`);
+  const { lang, t } = await getT();
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: { product: true },
   });
-  if (!order || order.userId !== viewer.id) notFound();
+  if (!order) notFound();
   if (order.status === "PAID") redirect(`/checkout/${order.id}/success`);
 
   const product = localize(order.product, lang);

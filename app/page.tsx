@@ -1,7 +1,5 @@
 import { getT } from "@/i18n/server";
-import { getViewer } from "@/lib/session";
 import { listProducts, CATEGORY_OF } from "@/lib/products";
-import { checkEligibility } from "@/lib/eligibility";
 import { ProductCard } from "@/components/ProductCard";
 
 const CATEGORIES = [
@@ -11,9 +9,8 @@ const CATEGORIES = [
 ] as const;
 
 export default async function HomePage() {
-  const [{ lang, t }, viewer] = await Promise.all([getT(), getViewer()]);
+  const { lang, t } = await getT();
   const products = await listProducts(lang);
-  const memberships = viewer?.memberships ?? [];
 
   const grouped = {
     memberships: products.filter((p) => CATEGORY_OF[p.kind] === "memberships"),
@@ -31,13 +28,7 @@ export default async function HomePage() {
           </h2>
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
             {grouped[c.id].map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                eligibility={checkEligibility(memberships, p)}
-                lang={lang}
-                featured={p.kind === "YEAR_MEMBERSHIP"}
-              />
+              <ProductCard key={p.id} product={p} lang={lang} featured={p.kind === "YEAR_MEMBERSHIP"} />
             ))}
           </div>
         </section>

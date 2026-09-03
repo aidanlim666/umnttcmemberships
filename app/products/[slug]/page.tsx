@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getT } from "@/i18n/server";
-import { getViewer } from "@/lib/session";
 import { getProductBySlug, CATEGORY_OF } from "@/lib/products";
-import { checkEligibility } from "@/lib/eligibility";
 import { weekdaysFor } from "@/lib/catalog";
 import { Logo } from "@/components/Logo";
 import { PriceTag } from "@/components/PriceTag";
@@ -26,13 +24,12 @@ const PERKS_BY_KIND = {
 
 export default async function ProductPage({ params }: PageProps<"/products/[slug]">) {
   const { slug } = await params;
-  const [{ lang, t }, viewer] = await Promise.all([getT(), getViewer()]);
+  const { lang, t } = await getT();
 
   const found = await getProductBySlug(slug, lang);
   if (!found || !found.view.active) notFound();
 
-  const { raw, view } = found;
-  const eligibility = checkEligibility(viewer?.memberships ?? [], raw);
+  const { view } = found;
   const category = CATEGORY_OF[view.kind];
 
   const perks = PERKS_BY_KIND[view.kind];
@@ -60,12 +57,6 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
             <div className="flex flex-wrap items-center gap-1.5">
               {view.kind === "YEAR_MEMBERSHIP" && (
                 <span className="chip chip-maroon">{t("badge.bestValue")}</span>
-              )}
-              {eligibility.reason === "includedInMembership" && (
-                <span className="chip chip-gold">{t("badge.includedShort")}</span>
-              )}
-              {eligibility.reason === "alreadyMember" && (
-                <span className="chip chip-gold">{t("badge.owned")}</span>
               )}
               {view.requiresDate && <span className="coupon">{t("product.selectDate")}</span>}
             </div>
@@ -114,8 +105,7 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
             <BuyPanel
               slug={view.slug}
               requiresDate={view.requiresDate}
-              eligibility={eligibility}
-              isLoggedIn={Boolean(viewer)}
+              purchasable={view.priceCents !== null}
               allowedWeekdays={weekdaysFor(view.kind)}
               priceLabel={
                 view.priceCents === null

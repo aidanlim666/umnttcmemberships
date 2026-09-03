@@ -47,18 +47,18 @@ the server console when Sheets is not configured).
 | Open Play Drop-In | $3 | Requires a session date |
 | Coached Training Session | TBD | Not purchasable until a price is set |
 
-### Membership rules
+### No accounts
 
-A member who holds either membership cannot buy the other membership or any drop-in —
-those are already included. Training is the exception: it is coaching time, not court
-access, so it is never covered by a membership.
+Anyone can buy without signing up. The buyer types a name and email on the product page,
+and day passes also ask for a self-assessed level. Those details are for the club's records
+only — nothing is verified and nothing gates access.
 
-These rules live in one place, `lib/eligibility.ts`, and are enforced **server-side** in
-`app/api/orders/route.ts`. The UI uses the same function to disable and explain the
-buttons, but the API is what actually decides.
+There is no membership check: every priced product is buyable by anyone. **The promo code
+is how members get free entry** — hand a full-value code to known members and they register
+for league nights at no charge. See [Promo codes](#promo-codes).
 
-To let fall members upgrade to a full year, set `ALLOW_UPGRADE = true` in
-`lib/eligibility.ts`. Nothing else needs to change.
+An order id is the only thing guarding a checkout page, the way a hosted payment link works.
+Ids are cuids and unguessable.
 
 ### Setting the training price
 
@@ -177,7 +177,6 @@ Test card: `4242 4242 4242 4242`, any future expiry, any CVC.
 
 | Tab | One row per | Written when |
 | --- | --- | --- |
-| `Accounts` | member | an account is confirmed (password or Google) |
 | `Full-Year Memberships` | season member | a full-year membership is paid for |
 | `Semester Memberships` | fall member | a fall membership is paid for |
 | `Purchases` | transaction | any purchase completes |
@@ -188,12 +187,11 @@ and once on its own tab as a roster entry an officer can read at a glance.
 | Command | Does |
 | --- | --- |
 | `npm run sheets:setup -- <key.json> <sheet-id>` | writes the credentials into `.env` |
-| `npm run sheets:init` | creates the four tabs, writes and freezes headers |
+| `npm run sheets:init` | creates the three tabs, writes and freezes headers |
 | `npm run sheets:check` | appends a visible test row to prove the connection |
 | `npm run sheets:backfill` | writes existing database records into the tabs |
 
-`sheets:backfill` is idempotent — rows already present (matched on email for accounts,
-order id elsewhere) are skipped, so it is safe to re-run and is the way to recover a tab
+`sheets:backfill` is idempotent — rows already present (matched on order id) are skipped, so it is safe to re-run and is the way to recover a tab
 after any gap in writing.
 
 Appending is deliberately best-effort: a Sheets outage logs the row and moves on rather
