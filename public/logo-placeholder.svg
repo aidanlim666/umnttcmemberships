@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360" role="img" aria-label="UMN Table Tennis Club">
+  <defs>
+    <clipPath id="shield">
+      <path d="M20 26h280v168c0 74-62 122-140 140C82 316 20 268 20 194Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- shield body -->
+  <path d="M20 26h280v168c0 74-62 122-140 140C82 316 20 268 20 194Z" fill="#ffffff"/>
+  <g clip-path="url(#shield)">
+    <rect x="20" y="150" width="280" height="60" fill="#faf3ec"/>
+    <!-- net suggestion behind the mark -->
+    <g stroke="#e6dcd2" stroke-width="3">
+      <path d="M60 150h200M60 168h200M60 186h200M60 204h200"/>
+      <path d="M84 148v60M114 148v60M144 148v60M174 148v60M204 148v60M234 148v60"/>
+    </g>
+  </g>
+  <path d="M20 26h280v168c0 74-62 122-140 140C82 316 20 268 20 194Z" fill="none" stroke="#7a0019" stroke-width="9"/>
+  <path d="M36 42h248v150c0 65-54 107-124 124C90 299 36 257 36 192Z" fill="none" stroke="#ffcc33" stroke-width="6"/>
+
+  <!-- UMN -->
+  <text x="160" y="112" text-anchor="middle" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+        font-size="82" font-weight="900" fill="#7a0019" letter-spacing="2">UMN</text>
+
+  <!-- crossed paddles + ball -->
+  <g transform="translate(160 196)">
+    <g transform="rotate(-28)">
+      <rect x="-7" y="6" width="14" height="52" rx="7" fill="#7a0019"/>
+      <ellipse cx="0" cy="-14" rx="34" ry="38" fill="#ffcc33" stroke="#7a0019" stroke-width="7"/>
+    </g>
+    <g transform="rotate(28)">
+      <rect x="-7" y="6" width="14" height="52" rx="7" fill="#7a0019"/>
+      <ellipse cx="0" cy="-14" rx="34" ry="38" fill="#ffffff" stroke="#7a0019" stroke-width="7"/>
+    </g>
+    <circle cx="52" cy="-42" r="13" fill="#ffcc33" stroke="#7a0019" stroke-width="5"/>
+  </g>
+
+  <!-- banner -->
+  <text x="160" y="290" text-anchor="middle" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+        font-size="30" font-weight="900" fill="#e0a800" letter-spacing="1">TABLE TENNIS</text>
+  <text x="160" y="316" text-anchor="middle" font-family="Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif"
+        font-size="20" font-weight="900" fill="#7a0019" letter-spacing="7">CLUB</text>
+</svg>

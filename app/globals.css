@@ -1,26 +1,308 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ Fonts
+   Body uses the system stack — zero bytes, native rendering everywhere.
+   HarmonyOS Sans SC is self-hosted for display type. If the subset file is not
+   present (see scripts/subset-font.sh) the stack simply falls through to the
+   system faces, so the site never depends on the font shipping. */
+@font-face {
+  font-family: "HarmonyOS Sans SC";
+  src: url("/fonts/HarmonyOS_Sans_SC-subset.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --font-display: "HarmonyOS Sans SC", var(--font-body);
+
+  /* University of Minnesota */
+  --maroon: #7a0019;
+  --maroon-deep: #55000f;
+  --maroon-soft: #9d1631;
+  --gold: #ffcc33;
+  --gold-deep: #e0a800;
+  --gold-wash: #fff4d6;
+
+  /* Warm ground — the off-white that carries the whole Taobao/Meituan look */
+  --ground: #f7f1ec;
+  --surface: #ffffff;
+  --surface-warm: #fffaf5;
+  --line: #ece0d6;
+  --line-strong: #ddcabb;
+
+  --ink: #241a15;
+  --ink-2: #5c4c43;
+  --ink-3: #94827a;
+
+  --price: #d0021b;
+  --price-deep: #a30014;
+
+  --radius-card: 14px;
+  --radius-chip: 999px;
+  --shadow-card: 0 1px 2px rgba(90, 50, 30, 0.05), 0 6px 16px rgba(90, 50, 30, 0.05);
+  --shadow-lift: 0 2px 6px rgba(90, 50, 30, 0.08), 0 14px 32px rgba(90, 50, 30, 0.1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-surface-warm: var(--surface-warm);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-maroon: var(--maroon);
+  --color-maroon-deep: var(--maroon-deep);
+  --color-maroon-soft: var(--maroon-soft);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-wash: var(--gold-wash);
+  --color-price: var(--price);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* This design is deliberately light-only — the warm ground is the point. */
+html {
+  color-scheme: light;
+  background: var(--ground);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Transparent so the fixed campus layer below shows through. The warm ground colour
+     lives on <html> and remains the fallback if the photo fails to load. */
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The Twin Cities campus sits behind the whole site. A fixed pseudo-element rather than
+   `background-attachment: fixed`, which iOS Safari does not honour, and a warm scrim
+   heavy enough that the dense white cards on top stay perfectly legible. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: linear-gradient(
+      180deg,
+      rgba(247, 241, 236, 0.72),
+      rgba(247, 241, 236, 0.8) 45%,
+      rgba(247, 241, 236, 0.9)
+    ),
+    url("/campus.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Chinese needs a touch of tracking at body size and a touch less at display size.
+   Never synthesise italics for Chinese — emphasis comes from weight. */
+:lang(zh) body,
+html[lang="zh"] body {
+  letter-spacing: 0.02em;
+}
+html[lang="zh"] .display,
+html[lang="zh"] h1,
+html[lang="zh"] h2 {
+  letter-spacing: -0.01em;
+}
+html[lang="zh"] i,
+html[lang="zh"] em {
+  font-style: normal;
+  font-weight: 700;
+}
+
+.display {
+  font-family: var(--font-display);
+}
+
+/* Every price, countdown and numeral: no jitter. */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+@layer components {
+  /* ------------------------------------------------------------------ Blocks */
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover {
+    transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-lift);
+    border-color: var(--line-strong);
+    transform: translateY(-2px);
+  }
+
+  /* Coupon chip: the notched ticket shape used all over Chinese commerce UI. */
+  .coupon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    font-weight: 700;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #fff1f1, #ffe3e3);
+    color: var(--price-deep);
+    border: 1px solid #ffc9c9;
+  }
+  .coupon::before,
+  .coupon::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--surface);
+    transform: translateY(-50%);
+  }
+  .coupon::before {
+    left: -3px;
+  }
+  .coupon::after {
+    right: -3px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: var(--radius-chip);
+    padding: 0.2rem 0.6rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+  .chip-gold {
+    background: var(--gold-wash);
+    color: #7a5200;
+    border: 1px solid #f2dca5;
+  }
+  .chip-maroon {
+    background: #fbeef1;
+    color: var(--maroon);
+    border: 1px solid #f0d3da;
+  }
+  .chip-muted {
+    background: #f2ece7;
+    color: var(--ink-3);
+    border: 1px solid var(--line);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: var(--radius-chip);
+    font-weight: 700;
+    transition: filter 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: grayscale(0.5);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--maroon-soft), var(--maroon-deep));
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(122, 0, 25, 0.25);
+  }
+  .btn-primary:not(:disabled):hover {
+    filter: brightness(1.08);
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+    color: #4a3000;
+    box-shadow: 0 2px 8px rgba(224, 168, 0, 0.3);
+  }
+  .btn-gold:not(:disabled):hover {
+    filter: brightness(1.05);
+  }
+  .btn-ghost {
+    background: var(--surface);
+    color: var(--maroon);
+    border: 1px solid var(--line-strong);
+  }
+  .btn-ghost:not(:disabled):hover {
+    background: var(--surface-warm);
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.9375rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .field:focus {
+    border-color: var(--maroon-soft);
+    box-shadow: 0 0 0 3px rgba(157, 22, 49, 0.12);
+  }
+
+  /* Announcement strip — the scrolling notice bar every Chinese app has. */
+  .marquee {
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  }
+  .marquee-track {
+    display: inline-flex;
+    gap: 3rem;
+    white-space: nowrap;
+    animation: marquee 32s linear infinite;
+    will-change: transform;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+
+  /* Hairline separators that survive on a warm ground */
+  .hair {
+    border-color: var(--line);
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--maroon-soft);
+    outline-offset: 2px;
+  }
 }
