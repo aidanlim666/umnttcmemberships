@@ -114,24 +114,16 @@ failing, so you can turn them on one at a time.
 
 Without these the Google button is simply not rendered; email/password still works.
 
-### Email (signup codes and password resets)
+### Email (not currently used)
 
-Creating an account is a two-step flow: the details are held in a `PendingSignup` row and a
-six-digit code is emailed. **No `User` row exists until that code comes back**, so an address
-nobody controls can never end up on the club roster. "Forgot password" works the same way.
+Nothing on the site sends email any more — signup codes and password resets went away with
+the accounts. `lib/mail.ts` and the Brevo credentials are left in place and working, so
+purchase receipts would be a small change rather than a fresh setup.
 
-Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `MAIL_FROM`. Any SMTP
-provider works — a Google Workspace account with an app password, or a transactional
-service such as Resend, Postmark, or SES.
-
-**Without SMTP configured the flows still work end to end**: the message is printed to the
-server console instead of being sent, so you can copy the code straight out of the log.
-Look for `[mail]`. Never run production this way — members would never receive their codes.
-
-Codes expire after 15 minutes and are burned after 5 wrong guesses (`lib/codes.ts`). They
-are generated with a CSPRNG and stored hashed, so the database never holds a usable code.
-`/api/password/forgot` always answers `ok`, whether or not the address has an account —
-saying "no such user" would turn it into a way to discover who is a member.
+Two things worth remembering if you ever wire it back up: **Railway blocks outbound SMTP
+ports**, so mail must go over the HTTPS API (`BREVO_API_KEY`), and `umn.edu` publishes DMARC
+`p=reject`, so mail claiming to come from a @umn.edu address through any third party is
+rejected outright. That is why the sender is a plain Gmail address.
 
 ### PayPal and Venmo
 
