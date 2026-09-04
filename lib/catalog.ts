@@ -42,12 +42,12 @@ export const SEED_PRODUCTS = [
   {
     slug: "full-year-membership",
     kind: "YEAR_MEMBERSHIP" as ProductKind,
-    nameEn: "2026–27 Full Year Membership",
-    nameZh: "2026–27 学年全年会员",
+    nameEn: "2026-27 Full Year Membership",
+    nameZh: "2026-27 学年全年会员",
     descEn:
-      "Unlimited open play and Friday league entry for the entire 2026–27 academic year. Covers every open play session and every Friday league through August 2027.",
+      "Unlimited open play and Friday league entry for the entire 2026-27 academic year. Covers every open play session and every Friday league through August 2027.",
     descZh:
-      "整个 2026–27 学年无限次 open play 与周五league 参与资格。涵盖至 2027 年 8 月前的所有 open play 与周五league。",
+      "整个 2026-27 学年无限次 open play 与周五league 参与资格。涵盖至 2027 年 8 月前的所有 open play 与周五league。",
     priceCents: 5000,
     requiresDate: false,
     sortOrder: 1,
