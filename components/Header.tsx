@@ -14,11 +14,8 @@ export async function Header() {
             <span className="grid h-10 w-10 place-items-center rounded-lg bg-white/95 p-1">
               <Logo size={32} priority />
             </span>
-            <span className="leading-tight">
-              <span className="display block text-[15px] font-extrabold tracking-tight">
-                {t("site.short")}
-              </span>
-              <span className="block text-[10px] text-white/70">{t("site.tagline")}</span>
+            <span className="display text-[15px] font-extrabold leading-tight tracking-tight">
+              {t("site.short")}
             </span>
           </Link>
 
@@ -37,6 +34,7 @@ export async function Header() {
               <span>📣 {t("announce.1")}</span>
               <span>🏓 {t("announce.2")}</span>
               <span>📍 {t("announce.3")}</span>
+              <span>🎟️ {t("announce.4")}</span>
             </span>
           ))}
         </div>

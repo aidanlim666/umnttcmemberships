@@ -3,7 +3,8 @@ import Link from "next/link";
 import { getT } from "@/i18n/server";
 import { getProductBySlug, CATEGORY_OF } from "@/lib/products";
 import { weekdaysFor } from "@/lib/catalog";
-import { Logo } from "@/components/Logo";
+import Image from "next/image";
+import { PRODUCT_IMAGE } from "@/lib/productImages";
 import { PriceTag } from "@/components/PriceTag";
 import { formatUsd } from "@/lib/money";
 import { BuyPanel } from "@/components/BuyPanel";
@@ -48,8 +49,15 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
         {/* ------------------------------------------------ Left: the product */}
         <div className="order-1 space-y-3">
           <div className="card overflow-hidden">
-            <div className="grid aspect-[16/10] place-items-center bg-[linear-gradient(150deg,#fffdf8,#f6ece2)] p-6 sm:aspect-[16/8]">
-              <Logo size={220} priority />
+            <div className="relative aspect-[16/10] bg-[linear-gradient(150deg,#fffdf8,#f6ece2)] sm:aspect-[16/8]">
+              <Image
+                src={PRODUCT_IMAGE[view.kind]}
+                alt={view.name}
+                fill
+                sizes="(min-width: 1024px) 720px, 100vw"
+                priority
+                className="object-cover"
+              />
             </div>
           </div>
 

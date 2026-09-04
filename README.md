@@ -120,8 +120,9 @@ Nothing on the site sends email any more — signup codes and password resets we
 the accounts. `lib/mail.ts` and the Brevo credentials are left in place and working, so
 purchase receipts would be a small change rather than a fresh setup.
 
-Two things worth remembering if you ever wire it back up: **Railway blocks outbound SMTP
-ports**, so mail must go over the HTTPS API (`BREVO_API_KEY`), and `umn.edu` publishes DMARC
+Two things worth remembering if you ever wire it back up: **serverless hosts commonly block
+outbound SMTP ports** (Railway did, and Netlify Functions are not a safe bet either), so mail
+should go over the HTTPS API (`BREVO_API_KEY`), and `umn.edu` publishes DMARC
 `p=reject`, so mail claiming to come from a @umn.edu address through any third party is
 rejected outright. That is why the sender is a plain Gmail address.
 
@@ -254,14 +255,29 @@ component classes below them sit inside `@layer components` so Tailwind utilitie
 
 ## Live deployment
 
-Hosted on Railway: **https://web-production-1d4e1.up.railway.app**
+Hosted on Netlify: **https://umn-ttc-membership.netlify.app**
 
-Project `umn-ttc-membership`, two services — `web` (this app) and `Postgres`. Deploy from
-this directory with `railway up`; `npm start` runs `prisma migrate deploy` before
-`next start`, so migrations are applied on every release.
+Netlify project `umn-ttc-membership` (team `aidanlim`, Starter plan) serves the app; the
+database is Neon project `polished-frost-62345290`, branch `production`, in AWS
+`us-east-2`. That region is deliberate — Netlify Functions default to Ohio, so the database
+sits in the same AWS region as the functions querying it.
 
-A TCP proxy is open on the database for admin access (`railway tcp-proxy list --service
-Postgres`). Close it when you no longer need it — it is a public endpoint into your data.
+Deploy from this directory:
+
+```bash
+npx netlify-cli deploy --build --prod
+```
+
+The production build runs `prisma migrate deploy` before `next build`, so migrations ship
+with the release. `neon link` keeps `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED`
+(direct) current in `.env`; both are also set in the Netlify dashboard.
+
+Note that `neon link` overwrites `DATABASE_URL` in `.env` with the production value, so
+after running it `npm run dev` talks to production until you point it back at the local
+container from step 1 above.
+
+Previously hosted on Railway, dropped because its free credit lasts about a month — see
+`## Deploying to Netlify + Neon` for why Vercel's Hobby plan is not an option either.
 
 ### Writing migrations by hand
 
@@ -272,15 +288,28 @@ because the rename ran before the type it renames existed. Always generate the t
 with `date -u +%Y%m%d%H%M%S`, and check `ls prisma/migrations | sort` puts them in the
 order you intend.
 
-## Deploying
+## Deploying to Netlify + Neon
 
-1. Provision Postgres (Neon, Vercel Postgres, Supabase) and set `DATABASE_URL`.
-2. Set every env var from `.env.example` in the host's dashboard. `AUTH_URL` must be the
-   real https origin; keep `AUTH_TRUST_HOST=true`.
-3. `npx prisma migrate deploy` against production, then `npm run db:seed` once.
-4. Register the production callback URL with Google, and point the PayPal and Stripe
-   webhooks at the deployed domain.
-5. Verify Apple Pay domain verification in the Stripe dashboard.
+Both tiers are free with no expiry, and both permit commercial use — which matters here,
+because the site sells memberships. (Vercel's Hobby plan does not: its fair-use terms name
+"a paid membership" as commercial.)
+
+1. **Neon.** Create a project, then copy *two* connection strings from the dashboard:
+   - `DATABASE_URL` — the **pooled** one (host contains `-pooler`). Serverless functions
+     open a connection per invocation, so the app must go through the pooler.
+   - `DIRECT_URL` — the **unpooled** one. Only `prisma migrate deploy` uses it; the pooled
+     endpoint cannot hold the advisory lock Prisma takes while migrating.
+2. **Env vars.** Set every key from `.env.example` in Netlify → Site configuration →
+   Environment variables, plus `DIRECT_URL`.
+3. **Schema.** `npx prisma migrate deploy` then `npm run db:seed` once, run locally with
+   `DIRECT_URL` pointed at Neon. Afterwards production deploys migrate themselves — see
+   the `[context.production]` build command in `netlify.toml`.
+4. **Webhooks.** Point the Stripe and PayPal webhooks at the Netlify domain and update
+   `STRIPE_WEBHOOK_SECRET` / `PAYPAL_WEBHOOK_ID` with the values those dashboards issue.
+5. **Apple Pay.** Redo Stripe's domain verification for the new domain.
+
+Deploy previews deliberately skip the migration step: they share the production database,
+so a preview build applying a branch's unmerged schema change would corrupt live data.
 
 ---
 

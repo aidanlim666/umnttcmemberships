@@ -44,3 +44,7 @@ next-env.d.ts
 
 # keep the example env committed
 !.env.example
+.neon
+
+# Local Netlify folder
+.netlify

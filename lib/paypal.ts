@@ -53,6 +53,15 @@ async function call<T>(path: string, init: RequestInit & { idempotencyKey?: stri
   return JSON.parse(text) as T;
 }
 
+/**
+ * Where PayPal sends the buyer back to after an app switch. Set SITE_URL in production;
+ * without it the mobile Venmo hand-off has nowhere to return and the buyer is stranded in
+ * the Venmo app with no way back to the order.
+ */
+function siteUrl(): string {
+  return (process.env.SITE_URL ?? "https://umn-ttc-membership.netlify.app").replace(/\/$/, "");
+}
+
 export async function createPayPalOrder(args: {
   orderId: string;
   amount: string;
@@ -75,6 +84,11 @@ export async function createPayPalOrder(args: {
         brand_name: "UMN Table Tennis Club",
         shipping_preference: "NO_SHIPPING",
         user_action: "PAY_NOW",
+        // Required for the mobile app-switch flow: tapping Venmo leaves the browser
+        // entirely, so PayPal needs a destination to hand the buyer back to. The desktop
+        // popup flow never uses these, which is why the omission only showed up on a phone.
+        return_url: `${siteUrl()}/checkout/${args.orderId}`,
+        cancel_url: `${siteUrl()}/checkout/${args.orderId}`,
       },
     }),
   });

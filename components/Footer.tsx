@@ -1,6 +1,6 @@
 import { Logo } from "@/components/Logo";
 
-export function Footer({ club, rights }: { club: string; rights: string }) {
+export function Footer({ club, address }: { club: string; address: string }) {
   return (
     <footer className="mt-10 border-t border-[var(--line)] bg-[var(--maroon-deep)] text-white/80">
       <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-7 sm:flex-row sm:items-center sm:px-5">
@@ -9,7 +9,7 @@ export function Footer({ club, rights }: { club: string; rights: string }) {
         </span>
         <div className="text-[13px] leading-relaxed">
           <p className="display font-bold text-white">{club}</p>
-          <p className="text-white/60">{rights}</p>
+          <p className="text-white/60">{address}</p>
         </div>
       </div>
     </footer>

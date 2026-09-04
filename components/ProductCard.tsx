@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import Image from "next/image";
+import { PRODUCT_IMAGE } from "@/lib/productImages";
 import { PriceTag } from "@/components/PriceTag";
 import type { LocalizedProduct } from "@/lib/products";
 import { translator, type Lang } from "@/i18n/config";
@@ -22,10 +23,16 @@ export function ProductCard({
       href={`/products/${product.slug}`}
       className="card card-hover focus-ring group flex flex-col overflow-hidden"
     >
-      <div className="relative aspect-[4/3] bg-[linear-gradient(150deg,#fffdf8,#f6ece2)]">
-        <span className="absolute inset-0 grid place-items-center p-4">
-          <Logo size={featured ? 118 : 96} className="drop-shadow-sm transition-transform duration-300 group-hover:scale-105" />
-        </span>
+      <div className="relative aspect-[4/3] overflow-hidden bg-[linear-gradient(150deg,#fffdf8,#f6ece2)]">
+        <Image
+          src={PRODUCT_IMAGE[product.kind]}
+          alt={product.name}
+          fill
+          // Two per row on phones, up to four on desktop — keeps the browser from
+          // fetching a full-width file for a card that is never wider than ~360px.
+          sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 50vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
         <span className="absolute left-2 top-2 flex gap-1">
           {featured && <span className="chip chip-maroon">{t("badge.bestValue")}</span>}
           {!buyable && <span className="chip chip-muted">{t("product.priceTbd")}</span>}

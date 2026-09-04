@@ -4,7 +4,7 @@
  * missing. Run after adding each set of keys — a real API round-trip, not a format check.
  *
  *   node scripts/check-credentials.mjs            # test locally against .env
- *   railway run node scripts/check-credentials.mjs  # test the deployed environment
+ *   npx netlify-cli env:exec -- node scripts/check-credentials.mjs   # deployed environment
  */
 import "dotenv/config";
 
@@ -15,7 +15,7 @@ const skip = (m) => console.log(`  – ${m}`);
 let failures = 0;
 
 /* ------------------------------------------------------------------ SMTP */
-console.log("\nEMAIL (signup codes, password resets)");
+console.log("\nEMAIL (not used by the site — kept for future receipts)");
 if (process.env.BREVO_API_KEY) {
   try {
     const r = await fetch("https://api.brevo.com/v3/account", {
@@ -24,8 +24,8 @@ if (process.env.BREVO_API_KEY) {
     if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
     const a = await r.json();
     ok(`Brevo API over HTTPS — ${a.email ?? "authenticated"}`);
-    ok("works on hosts that block SMTP ports (Railway does)");
-    if (!process.env.MAIL_FROM) { failures++; bad("MAIL_FROM unset — Brevo needs an explicit verified sender"); }
+    ok("works on hosts that block SMTP ports");
+    if (!process.env.MAIL_FROM) bad("MAIL_FROM unset — Brevo needs an explicit verified sender");
     else ok(`sending as ${process.env.MAIL_FROM}`);
     if (process.argv[2]) {
       const m = (process.env.MAIL_FROM ?? "").match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
@@ -43,10 +43,10 @@ if (process.env.BREVO_API_KEY) {
       else ok(`sent a test message to ${process.argv[2]} — check the inbox`);
     } else skip("pass an address to also send a real test message");
   } catch (e) {
-    failures++;
-    bad(e.message.slice(0, 250));
-    if (/401|unauthor/i.test(e.message)) bad("  Check the API key was copied whole.");
-    if (/sender/i.test(e.message)) bad("  Verify the MAIL_FROM address in Brevo → Senders.");
+    // Not counted as a failure: no code path sends email today.
+    bad(e.message.slice(0, 200));
+    if (/unrecognised IP/i.test(e.message))
+      skip("  Brevo IP allowlisting is on. Irrelevant unless receipts get wired up.");
   }
 } else if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
   skip("not configured — codes print to the server log instead of being emailed");
@@ -63,7 +63,7 @@ if (process.env.BREVO_API_KEY) {
     });
     await t.verify();
     ok(`connected to ${process.env.SMTP_HOST}:${port} as ${process.env.SMTP_USER}`);
-    skip("SMTP only — blocked on Railway; set BREVO_API_KEY for the live site");
+    skip("SMTP only — often blocked on serverless; set BREVO_API_KEY for the live site");
     if (process.argv[2]) {
       await t.sendMail({
         from: process.env.MAIL_FROM ?? process.env.SMTP_USER,

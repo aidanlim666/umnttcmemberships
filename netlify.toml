@@ -1,0 +1,14 @@
+# Netlify build config. The Next.js runtime is auto-installed and needs no plugin entry.
+
+[build]
+  command = "next build"
+  publish  = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Migrations run only for the live site. Deploy previews and branch builds share the
+# production database, so letting them migrate would apply unreviewed schema changes
+# from a branch that was never promoted.
+[context.production]
+  command = "npx prisma migrate deploy && next build"

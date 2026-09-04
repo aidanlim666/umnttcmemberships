@@ -19,8 +19,9 @@ import type SMTPTransport from "nodemailer/lib/smtp-transport";
  * Transport selection.
  *
  * HTTPS is preferred wherever it is configured, because cloud hosts routinely block
- * outbound SMTP ports (25/465/587) to stop spam relay — Railway does, which is why signup
- * email failed in production while working locally. Port 443 is never blocked.
+ * outbound SMTP ports (25/465/587) to stop spam relay — the previous host, Railway, did,
+ * which is why signup email failed in production while working locally. Port 443 is never
+ * blocked.
  * SMTP stays supported for local development and for hosts that permit it.
  */
 function httpApi() {

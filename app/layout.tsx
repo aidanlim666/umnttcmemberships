@@ -24,7 +24,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <LangProvider lang={lang}>
           <Header />
           <main className="flex-1">{children}</main>
-          <Footer club={t("footer.club")} rights={t("footer.rights")} />
+          <Footer club={t("footer.club")} address={t("footer.address")} />
         </LangProvider>
       </body>
     </html>
