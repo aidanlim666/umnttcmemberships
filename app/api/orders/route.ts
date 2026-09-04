@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { fromISODate, ISO_DATE_RE, isBookable } from "@/lib/dates";
-import { weekdaysFor } from "@/lib/catalog";
+import { isComingSoon, isFreeDuringTrial, weekdaysFor } from "@/lib/catalog";
 import { applyPromo } from "@/lib/promos";
 import { fulfillOrder } from "@/lib/fulfill";
 
@@ -38,6 +38,11 @@ export async function POST(request: Request) {
   if (product.priceCents === null) {
     return NextResponse.json({ error: "priceTbd" }, { status: 403 });
   }
+  // The membership cards are inert and the product page withholds its buy panel, but this
+  // is the only check that actually stops a membership being created during the trial.
+  if (isComingSoon(product.kind)) {
+    return NextResponse.json({ error: "comingSoon" }, { status: 403 });
+  }
 
   let eventDate: Date | null = null;
   if (product.requiresDate) {
@@ -48,10 +53,15 @@ export async function POST(request: Request) {
     eventDate = fromISODate(iso);
   }
 
+  // A drop-in is free for the week, so the price the order is written at is zero rather than
+  // the product's listed price - and a promo code against nothing would only put a
+  // meaningless discount row in the club's records.
+  const trial = isFreeDuringTrial(product.kind);
+
   // The browser sends a code, never an amount.
   const { amountCents, discountCents, promo } = applyPromo(
-    product.priceCents,
-    parsed.data.promoCode,
+    trial ? 0 : product.priceCents,
+    trial ? null : parsed.data.promoCode,
   );
 
   const order = await prisma.order.create({
@@ -69,9 +79,17 @@ export async function POST(request: Request) {
     select: { id: true },
   });
 
-  // A code worth the full price leaves nothing to charge.
+  // Nothing to charge - either the trial or a code worth the full price - so there is no
+  // checkout to visit: the order is fulfilled here and the buyer goes straight to their
+  // confirmation. PROMO is the provider for "settled with no processor involved"; the
+  // label is what keeps a trial sign-up distinguishable from a redeemed code.
   if (amountCents === 0) {
-    await fulfillOrder(order.id, "PROMO", `promo:${order.id}`);
+    await fulfillOrder(
+      order.id,
+      "PROMO",
+      `${trial ? "trial" : "promo"}:${order.id}`,
+      trial ? "Free trial (no charge)" : undefined,
+    );
     return NextResponse.json({ orderId: order.id, free: true });
   }
 

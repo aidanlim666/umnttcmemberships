@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getT } from "@/i18n/server";
 import { getProductBySlug, CATEGORY_OF } from "@/lib/products";
-import { weekdaysFor } from "@/lib/catalog";
+import { isComingSoon, isFreeDuringTrial, weekdaysFor } from "@/lib/catalog";
 import Image from "next/image";
 import { PRODUCT_IMAGE } from "@/lib/productImages";
 import { PriceTag } from "@/components/PriceTag";
@@ -32,6 +32,10 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
 
   const { view } = found;
   const category = CATEGORY_OF[view.kind];
+  // The card for a membership is not a link during the trial, but the URL still resolves -
+  // so the page has to withhold the purchase panel itself rather than trust the home page.
+  const comingSoon = isComingSoon(view.kind);
+  const freeTrial = isFreeDuringTrial(view.kind);
 
   const perks = PERKS_BY_KIND[view.kind];
 
@@ -104,26 +108,47 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
                 <p className="text-[11.5px] font-semibold text-[var(--ink-3)]">
                   {t("product.from")}
                 </p>
-                <PriceTag cents={view.priceCents} tbdLabel={t("product.priceTbd")} size="lg" />
+                {freeTrial ? (
+                  <span className="display text-xl font-extrabold text-[var(--price)]">
+                    {t("trial.free")}
+                  </span>
+                ) : (
+                  <PriceTag cents={view.priceCents} tbdLabel={t("product.priceTbd")} size="lg" />
+                )}
               </div>
               <span className="chip chip-muted">{t(`cat.${category}` as const)}</span>
             </div>
 
-            <BuyPanel
-              slug={view.slug}
-              requiresDate={view.requiresDate}
-              purchasable={view.priceCents !== null}
-              allowedWeekdays={weekdaysFor(view.kind)}
-              priceLabel={
-                view.priceCents === null
-                  ? t("product.priceTbd")
-                  : formatUsd(view.priceCents)
-              }
-            />
+            {comingSoon ? (
+              <div className="rounded-xl border border-[#f2dca5] bg-[var(--gold-wash)] px-4 py-3 text-center text-[13px] font-bold text-[#7a5200]">
+                {t("product.comingSoon")}
+                <p className="mt-1.5 text-[11.5px] font-semibold leading-relaxed">
+                  {t("product.comingSoonNote")}
+                </p>
+              </div>
+            ) : (
+              <BuyPanel
+                slug={view.slug}
+                requiresDate={view.requiresDate}
+                purchasable={view.priceCents !== null}
+                allowedWeekdays={weekdaysFor(view.kind)}
+                priceLabel={
+                  freeTrial
+                    ? t("trial.free")
+                    : view.priceCents === null
+                      ? t("product.priceTbd")
+                      : formatUsd(view.priceCents)
+                }
+              />
+            )}
 
-            <p className="text-[11px] leading-relaxed text-[var(--ink-3)]">
-              {t("checkout.securedBy")}
-            </p>
+            {/* Nothing is charged for a free drop-in, so the processor notice would only
+                raise a question the page does not need to answer. */}
+            {!comingSoon && (
+              <p className="text-[11px] leading-relaxed text-[var(--ink-3)]">
+                {freeTrial ? t("trial.note") : t("checkout.securedBy")}
+              </p>
+            )}
           </div>
         </aside>
       </div>

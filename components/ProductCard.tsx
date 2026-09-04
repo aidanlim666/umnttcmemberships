@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PRODUCT_IMAGE } from "@/lib/productImages";
 import { PriceTag } from "@/components/PriceTag";
+import { isComingSoon, isFreeDuringTrial } from "@/lib/catalog";
 import type { LocalizedProduct } from "@/lib/products";
 import { translator, type Lang } from "@/i18n/config";
 
@@ -15,14 +16,13 @@ export function ProductCard({
   featured?: boolean;
 }) {
   const t = translator(lang);
+  const comingSoon = isComingSoon(product.kind);
+  const freeTrial = isFreeDuringTrial(product.kind);
   // The only thing that stops a product being bought now is having no price yet.
   const buyable = product.priceCents !== null;
 
-  return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="card card-hover focus-ring group flex flex-col overflow-hidden"
-    >
+  const body = (
+    <>
       <div className="relative aspect-[4/3] overflow-hidden bg-[linear-gradient(150deg,#fffdf8,#f6ece2)]">
         <Image
           src={PRODUCT_IMAGE[product.kind]}
@@ -31,11 +31,20 @@ export function ProductCard({
           // Two per row on phones, up to four on desktop - keeps the browser from
           // fetching a full-width file for a card that is never wider than ~360px.
           sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 50vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className={`object-cover transition-transform duration-300 ${
+            comingSoon ? "grayscale" : "group-hover:scale-105"
+          }`}
         />
         <span className="absolute left-2 top-2 flex gap-1">
-          {featured && <span className="chip chip-maroon">{t("badge.bestValue")}</span>}
-          {!buyable && <span className="chip chip-muted">{t("product.priceTbd")}</span>}
+          {comingSoon ? (
+            <span className="chip chip-muted">{t("product.comingSoon")}</span>
+          ) : (
+            <>
+              {featured && <span className="chip chip-maroon">{t("badge.bestValue")}</span>}
+              {freeTrial && <span className="chip chip-maroon">{t("trial.free")}</span>}
+              {!buyable && <span className="chip chip-muted">{t("product.priceTbd")}</span>}
+            </>
+          )}
         </span>
       </div>
 
@@ -51,16 +60,50 @@ export function ProductCard({
         )}
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-1.5">
-          <PriceTag cents={product.priceCents} tbdLabel={t("product.priceTbd")} />
+          {/* During the trial a drop-in's listed price is not what anyone pays, so say so
+              rather than showing a number the Buy now button will not charge. */}
+          {freeTrial ? (
+            <span className="display text-base font-extrabold text-[var(--price)]">
+              {t("trial.free")}
+            </span>
+          ) : (
+            <PriceTag cents={product.priceCents} tbdLabel={t("product.priceTbd")} />
+          )}
           <span
             className={`btn px-3 py-1.5 text-[12px] ${
-              buyable ? "btn-primary" : "btn-ghost opacity-70"
+              comingSoon || !buyable ? "btn-ghost opacity-70" : "btn-primary"
             }`}
           >
-            {buyable ? t("product.buy") : t("product.viewDetails")}
+            {comingSoon
+              ? t("product.comingSoon")
+              : buyable
+                ? t("product.buy")
+                : t("product.viewDetails")}
           </span>
         </div>
       </div>
+    </>
+  );
+
+  // Memberships are not on sale during the trial, so the card is a flat panel rather than a
+  // link - there is no product page worth opening while nothing on it can be bought.
+  if (comingSoon) {
+    return (
+      <div
+        aria-disabled="true"
+        className="card flex cursor-not-allowed flex-col overflow-hidden opacity-60 grayscale"
+      >
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={`/products/${product.slug}`}
+      className="card card-hover focus-ring group flex flex-col overflow-hidden"
+    >
+      {body}
     </Link>
   );
 }

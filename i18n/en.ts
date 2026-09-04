@@ -7,7 +7,7 @@ export const en = {
   'lang.toggle': '中文',
   'lang.label': 'Language',
 
-  'announce.1': '2026-27 season memberships are open! ',
+  'announce.1': 'One-week free trial, no need to pay! ',
   'announce.2':
       'Members play free at every open play session and Friday league',
   'announce.3': 'Questions? Message us on Wechat, GroupMe, or Instagram!',
@@ -29,6 +29,11 @@ export const en = {
   'product.buy': 'Buy now',
   'product.viewDetails': 'View details',
   'product.priceTbd': 'Price TBD',
+  'product.comingSoon': 'Coming soon',
+  'product.comingSoonNote':
+      'Memberships go on sale once the club\'s payment accounts are set up. Drop-ins are free this week - come play in the meantime.',
+  'trial.free': 'Free this week',
+  'trial.note': 'Free trial - nothing to pay. Buy now confirms your spot straight away.',
   'product.from': 'Only',
   'product.selectDate': 'Select your date',
   'product.dateRequired': 'Pick a date to continue',

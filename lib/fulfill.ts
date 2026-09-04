@@ -26,6 +26,12 @@ export async function fulfillOrder(
   orderId: string,
   provider: PaymentProvider,
   providerRef: string,
+  /**
+   * How the club's spreadsheet should describe the settlement. Only worth passing when the
+   * provider alone does not say enough - a free-trial order settles the same way a promo
+   * code does, but the records should not claim a code was used.
+   */
+  methodLabel: string = PROVIDER_LABEL[provider],
 ): Promise<FulfillResult> {
   const outcome = await prisma.$transaction(async (tx) => {
     const order = await tx.order.findUnique({
@@ -87,7 +93,7 @@ export async function fulfillOrder(
     eventDate: outcome.order.eventDate,
     skillLevel: outcome.order.skillLevel,
     orderId: outcome.order.id,
-    paymentMethod: PROVIDER_LABEL[provider],
+    paymentMethod: methodLabel,
     promoCode: outcome.order.promoCode,
   });
 

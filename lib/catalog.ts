@@ -27,6 +27,36 @@ export function weekdaysFor(kind: ProductKind): readonly number[] | null {
 }
 
 export const MEMBERSHIP_KINDS: ProductKind[] = ["YEAR_MEMBERSHIP", "FALL_MEMBERSHIP"];
+export const DROPIN_KINDS: ProductKind[] = ["LEAGUE_DROPIN", "OPENPLAY_DROPIN"];
+
+/**
+ * The club cannot take money yet: PayPal and Venmo both want its nonprofit status settled
+ * before the accounts go live, and that is with the club's advisor. So the season opens as
+ * a one-week free trial instead - memberships are off sale, and a drop-in costs nothing.
+ *
+ * This one switch is the whole trial. Set it to false once the accounts are sorted and
+ * memberships go back on sale, drop-ins go back to their listed price, and checkout starts
+ * charging again; nothing else has to be touched.
+ */
+export const FREE_TRIAL = true;
+
+/**
+ * Memberships are the products that actually need a payment processor, so during the trial
+ * they are shown but cannot be opened or bought - "coming soon" rather than quietly missing,
+ * because members are being told the season has started.
+ */
+export function isComingSoon(kind: ProductKind): boolean {
+  return FREE_TRIAL && MEMBERSHIP_KINDS.includes(kind);
+}
+
+/**
+ * Drop-ins are free for the week. They still go through the ordinary order flow - the club
+ * wants the roster and the session date either way - but there is nothing to charge, so
+ * checkout is skipped entirely and the buyer lands straight on their confirmation.
+ */
+export function isFreeDuringTrial(kind: ProductKind): boolean {
+  return FREE_TRIAL && DROPIN_KINDS.includes(kind);
+}
 
 export function tierForKind(kind: ProductKind): MembershipTier | null {
   if (kind === "YEAR_MEMBERSHIP") return "YEAR";
