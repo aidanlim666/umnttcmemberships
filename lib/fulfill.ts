@@ -19,7 +19,7 @@ export type FulfillResult =
  *
  * Both the browser's capture call and the provider's webhook race to call this for the
  * same payment. The `fulfilledAt` guard inside the transaction means whichever arrives
- * second is a no-op — so a member can never be granted two memberships, and the
+ * second is a no-op - so a member can never be granted two memberships, and the
  * spreadsheet can never gain a duplicate row.
  */
 export async function fulfillOrder(
@@ -64,7 +64,7 @@ export async function fulfillOrder(
   const buyerEmail = outcome.order.buyerEmail;
 
   // Outside the transaction: a slow or failing Sheets call must not roll back the sale.
-  // A membership lands on two tabs — the ledger, and its own roster.
+  // A membership lands on two tabs - the ledger, and its own roster.
   if (outcome.membership) {
     await appendMembership({
       tier: outcome.membership.tier,

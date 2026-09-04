@@ -6,9 +6,9 @@ import type { MembershipTier } from "@/lib/generated/prisma/enums";
  * The officers' spreadsheet.
  *
  * Three tabs, each written at the moment the thing it records actually happens:
- *   Full-Year Memberships — season members
- *   Semester Memberships  — fall-only members
- *   Purchases             — the full ledger, including drop-ins and training
+ *   Full-Year Memberships - season members
+ *   Semester Memberships  - fall-only members
+ *   Purchases             - the full ledger, including drop-ins and training
  *
  * A membership purchase therefore appears twice by design: once in Purchases as a
  * transaction, and once in its membership tab as a roster entry.
@@ -69,7 +69,7 @@ export function sheetsClient(): { sheets: sheets_v4.Sheets; sheetId: string } | 
 async function appendRow(tab: string, values: string[]): Promise<void> {
   const client = sheetsClient();
   if (!client) {
-    console.log(`[sheets] not configured — ${tab}: ${values.join(" | ")}`);
+    console.log(`[sheets] not configured - ${tab}: ${values.join(" | ")}`);
     return;
   }
 
@@ -83,7 +83,7 @@ async function appendRow(tab: string, values: string[]): Promise<void> {
       requestBody: { values: [values] },
     });
   } catch (err) {
-    console.error(`[sheets] append to ${tab} failed — row: ${values.join(" | ")}`, err);
+    console.error(`[sheets] append to ${tab} failed - row: ${values.join(" | ")}`, err);
   }
 }
 
@@ -127,7 +127,7 @@ export type PurchaseRow = {
   skillLevel?: string | null;
   orderId: string;
   paymentMethod: string;
-  /** The promo code applied, if any — officers need to see why a total was discounted. */
+  /** The promo code applied, if any - officers need to see why a total was discounted. */
   promoCode?: string | null;
 };
 

@@ -8,7 +8,7 @@ const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
 if (!sheetId || !clientEmail || !privateKey) {
-  console.error("Not configured yet — GOOGLE_SHEET_ID / _EMAIL / _PRIVATE_KEY are not all set in .env");
+  console.error("Not configured yet - GOOGLE_SHEET_ID / _EMAIL / _PRIVATE_KEY are not all set in .env");
   process.exit(1);
 }
 
@@ -26,7 +26,7 @@ try {
   console.log(`Tabs: ${tabs.join(", ")}`);
 
   if (!tabs.includes("Purchases")) {
-    console.error('\nNo tab named "Purchases" — rename your tab (it is case-sensitive).');
+    console.error('\nNo tab named "Purchases" - rename your tab (it is case-sensitive).');
     process.exit(1);
   }
 
@@ -38,11 +38,11 @@ try {
     requestBody: {
       values: [[
         new Date().toISOString(), "TEST ROW", "delete-me@example.com",
-        "Connection test", "0.00", "", "—", "", "setup-check",
+        "Connection test", "0.00", "", "-", "", "setup-check",
       ]],
     },
   });
-  console.log("\nAppended a TEST ROW to the Purchases tab — delete it by hand.");
+  console.log("\nAppended a TEST ROW to the Purchases tab - delete it by hand.");
   console.log("Google Sheets is connected.");
 } catch (err) {
   const status = err?.status ?? err?.code;

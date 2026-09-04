@@ -7,7 +7,7 @@ const schema = z.object({ slug: z.string().min(1), code: z.string().min(1).max(6
 
 /**
  * Previews a code against a specific product so the buyer sees the real total before
- * committing. This is only a preview — the order API re-checks the code and recomputes
+ * committing. This is only a preview - the order API re-checks the code and recomputes
  * the price itself, so a forged response here buys nothing.
  */
 export async function POST(request: Request) {

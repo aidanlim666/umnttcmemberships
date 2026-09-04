@@ -7,7 +7,7 @@ import type SMTPTransport from "nodemailer/lib/smtp-transport";
  *
  * NOTE: currently unwired. It existed for signup confirmation codes and password resets,
  * which went away with the accounts. Kept because the Brevo credentials behind it are live
- * and verified — if the club ever wants purchase receipts, this is ready to call.
+ * and verified - if the club ever wants purchase receipts, this is ready to call.
  *
  * Follows the same rule as the Sheets integration: fully working when SMTP credentials
  * are present, and a loud console fallback when they are not. That way signup and password
@@ -19,7 +19,7 @@ import type SMTPTransport from "nodemailer/lib/smtp-transport";
  * Transport selection.
  *
  * HTTPS is preferred wherever it is configured, because cloud hosts routinely block
- * outbound SMTP ports (25/465/587) to stop spam relay — the previous host, Railway, did,
+ * outbound SMTP ports (25/465/587) to stop spam relay - the previous host, Railway, did,
  * which is why signup email failed in production while working locally. Port 443 is never
  * blocked.
  * SMTP stays supported for local development and for hosts that permit it.
@@ -87,7 +87,7 @@ export async function sendMail(args: {
 
   if (!config) {
     console.log(
-      `\n[mail] SMTP not configured — email not sent.\n` +
+      `\n[mail] SMTP not configured - email not sent.\n` +
         `       To:      ${args.to}\n` +
         `       Subject: ${args.subject}\n` +
         `${args.text.replace(/^/gm, "       ")}\n`,

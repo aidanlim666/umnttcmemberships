@@ -16,7 +16,7 @@ export async function POST(request: Request) {
 
   const result = await loadPayableOrder(parsed.data.orderId);
   if ("error" in result) {
-    // The webhook may have fulfilled it first — that is a success from the buyer's view.
+    // The webhook may have fulfilled it first - that is a success from the buyer's view.
     if (result.error === "alreadyPaid") return NextResponse.json({ ok: true });
     return NextResponse.json({ error: result.error }, { status: 409 });
   }

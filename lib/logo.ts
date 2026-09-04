@@ -3,7 +3,7 @@ import path from "node:path";
 
 /**
  * The official crest lives at public/logo.png (or .svg). Until the club drops the real
- * file in, we fall back to a placeholder crest so nothing renders broken — the swap is
+ * file in, we fall back to a placeholder crest so nothing renders broken - the swap is
  * automatic the moment the file appears.
  */
 const CANDIDATES = ["logo.png", "logo.svg", "logo.webp", "logo.jpg"];

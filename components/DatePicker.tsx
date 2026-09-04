@@ -11,7 +11,7 @@ function startOfMonth(iso: string) {
 
 /**
  * Compact month grid for choosing a drop-in session date. No dependency, no popover
- * library — it is always visible on the product page so the choice is impossible to miss.
+ * library - it is always visible on the product page so the choice is impossible to miss.
  */
 export function DatePicker({
   value,

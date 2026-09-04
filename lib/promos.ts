@@ -3,7 +3,7 @@
  *
  * Kept as a small in-code registry rather than a database table: the club runs a handful
  * of codes a season, and a code is a decision an officer makes, not data members create.
- * Add an entry here and it works everywhere — the product page preview and the order API
+ * Add an entry here and it works everywhere - the product page preview and the order API
  * read the same list.
  */
 
@@ -17,7 +17,7 @@ export type Promo = {
   /**
    * Off in production unless ENABLE_TEST_PROMO=true. A 100%-off code on a public site is
    * free memberships for anyone who guesses or is told it, so it must not ship live by
-   * accident — flip the env var when you deliberately want to test against production.
+   * accident - flip the env var when you deliberately want to test against production.
    */
   devOnly?: boolean;
 };
@@ -26,8 +26,8 @@ const ALL_PROMOS: Promo[] = [
   {
     code: "TESTINGTESTING",
     percentOff: 100,
-    labelEn: "Test code — 100% off",
-    labelZh: "测试码 — 100% 折扣",
+    labelEn: "Test code - 100% off",
+    labelZh: "测试码 - 100% 折扣",
     devOnly: true,
   },
 ];
@@ -50,7 +50,7 @@ export type Priced = { amountCents: number; discountCents: number; promo: Promo 
 
 /**
  * Works out what a member actually pays. Always computed on the server from the product's
- * own price — the browser sends a code, never an amount.
+ * own price - the browser sends a code, never an amount.
  */
 export function applyPromo(priceCents: number, input?: string | null): Priced {
   const promo = findPromo(input);

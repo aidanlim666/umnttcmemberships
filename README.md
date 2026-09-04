@@ -1,4 +1,4 @@
-# UMN Table Tennis Club — Membership Site
+# UMN Table Tennis Club - Membership Site
 
 Membership and session-pass sales for the University of Minnesota Table Tennis Club.
 Members sign in (email or Google), buy a season membership or a single session, pay with
@@ -32,7 +32,7 @@ npm run dev                   # http://localhost:3000
 
 The site is fully usable at this point: browse, register, log in, pick a drop-in date, and
 create an order. Checkout shows "this payment method is not configured yet" until you add
-provider keys — everything else works, including the Google Sheet path (it logs the row to
+provider keys - everything else works, including the Google Sheet path (it logs the row to
 the server console when Sheets is not configured).
 
 ---
@@ -51,10 +51,10 @@ the server console when Sheets is not configured).
 
 Anyone can buy without signing up. The buyer types a name and email on the product page,
 and day passes also ask for a self-assessed level. Those details are for the club's records
-only — nothing is verified and nothing gates access.
+only - nothing is verified and nothing gates access.
 
 There is no membership check: every priced product is buyable by anyone. **The promo code
-is how members get free entry** — hand a full-value code to known members and they register
+is how members get free entry** - hand a full-value code to known members and they register
 for league nights at no charge. See [Promo codes](#promo-codes).
 
 An order id is the only thing guarding a checkout page, the way a hosted payment link works.
@@ -71,19 +71,19 @@ saying "Price TBD" and becomes purchasable immediately.
 
 ### Promo codes
 
-Codes live in `lib/promos.ts` — a small in-code registry rather than a table, since a code
+Codes live in `lib/promos.ts` - a small in-code registry rather than a table, since a code
 is a decision an officer makes, not data members create. Add an entry and it works
 everywhere at once:
 
 ```ts
-{ code: "WELCOME25", percentOff: 25, labelEn: "Welcome — 25% off", labelZh: "..." }
+{ code: "WELCOME25", percentOff: 25, labelEn: "Welcome - 25% off", labelZh: "..." }
 ```
 
 Matching ignores case and surrounding whitespace. The active code today is
 **`TESTINGTESTING`** (100% off), used for testing the purchase flow end to end.
 
 A code worth the full price leaves nothing to charge, so the order is granted immediately
-and the buyer skips checkout entirely — the entitlement, the membership row, and the
+and the buyer skips checkout entirely - the entitlement, the membership row, and the
 spreadsheet line all happen exactly as they would after a real payment, recorded against
 the `PROMO` payment provider with the code in its own spreadsheet column.
 
@@ -94,7 +94,7 @@ the product's own row, so a forged preview response discounts nothing.
 ### Changing which dates are bookable
 
 Drop-in dates are clamped to the season opening (1 September 2026) and to today, whichever
-is later — see `SEASON_START_ISO` in `lib/dates.ts`.
+is later - see `SEASON_START_ISO` in `lib/dates.ts`.
 
 ---
 
@@ -116,7 +116,7 @@ Without these the Google button is simply not rendered; email/password still wor
 
 ### Email (not currently used)
 
-Nothing on the site sends email any more — signup codes and password resets went away with
+Nothing on the site sends email any more - signup codes and password resets went away with
 the accounts. `lib/mail.ts` and the Brevo credentials are left in place and working, so
 purchase receipts would be a small change rather than a fresh setup.
 
@@ -128,7 +128,7 @@ rejected outright. That is why the sender is a plain Gmail address.
 
 ### PayPal and Venmo
 
-Venmo is only reachable through PayPal's SDK — one set of credentials covers both. Venmo
+Venmo is only reachable through PayPal's SDK - one set of credentials covers both. Venmo
 appears for US buyers on supported devices, and does **not** show up in the sandbox on
 desktop, so test it on a phone.
 
@@ -156,15 +156,15 @@ Test card: `4242 4242 4242 4242`, any future expiry, any CVC.
 
 1. [Google Cloud Console](https://console.cloud.google.com/) → enable the **Google Sheets
    API** → create a **service account** → create a JSON key.
-2. Create a spreadsheet. Do not build the tabs by hand — `npm run sheets:init` creates all
+2. Create a spreadsheet. Do not build the tabs by hand - `npm run sheets:init` creates all
    four with the right headers, and re-running it repairs a header that has drifted.
 
 3. **Share the spreadsheet with the service account's email address** (Editor). This is the
-   step people miss — the service account is a separate identity and cannot see your files
+   step people miss - the service account is a separate identity and cannot see your files
    otherwise.
 4. Set `GOOGLE_SHEET_ID` (from the sheet URL), `GOOGLE_SERVICE_ACCOUNT_EMAIL`, and
    `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY` (paste the JSON key's `private_key` value verbatim,
-   `\n` escapes and all — `lib/sheets.ts` unescapes it).
+   `\n` escapes and all - `lib/sheets.ts` unescapes it).
 
 ### What lands where
 
@@ -184,7 +184,7 @@ and once on its own tab as a roster entry an officer can read at a glance.
 | `npm run sheets:check` | appends a visible test row to prove the connection |
 | `npm run sheets:backfill` | writes existing database records into the tabs |
 
-`sheets:backfill` is idempotent — rows already present (matched on order id) are skipped, so it is safe to re-run and is the way to recover a tab
+`sheets:backfill` is idempotent - rows already present (matched on order id) are skipped, so it is safe to re-run and is the way to recover a tab
 after any gap in writing.
 
 Appending is deliberately best-effort: a Sheets outage logs the row and moves on rather
@@ -221,26 +221,26 @@ amount.
 
 ## Design notes
 
-The visual target is the dominant look of the modern Chinese consumer internet — Taobao /
-Meituan / Xiaohongshu: warm, dense, modular — rendered in UMN maroon (`#7a0019`) and gold
+The visual target is the dominant look of the modern Chinese consumer internet - Taobao /
+Meituan / Xiaohongshu: warm, dense, modular - rendered in UMN maroon (`#7a0019`) and gold
 (`#ffcc33`) on a warm off-white ground. Tokens live at the top of `app/globals.css`; the
 component classes below them sit inside `@layer components` so Tailwind utilities still win.
 
 ### Typography
 
-- **Body** uses the system stack (`system-ui`, `PingFang SC`, `Microsoft YaHei`, …) — zero
+- **Body** uses the system stack (`system-ui`, `PingFang SC`, `Microsoft YaHei`, …) - zero
   bytes, renders natively on every platform.
 - **Display** uses HarmonyOS Sans SC, self-hosted and subsetted by
   `scripts/subset-font.sh` (`pyftsubset --flavor=woff2`, driven by the actual dictionary
   contents). A full SC face is ~4.3 MB; the subset lands in the tens of KB. The font file
-  is optional — without it the stack falls through to the system faces.
-- Chinese is **never italicised** — synthesised obliques look broken. Emphasis uses weight.
+  is optional - without it the stack falls through to the system faces.
+- Chinese is **never italicised** - synthesised obliques look broken. Emphasis uses weight.
 - Chinese body text gets `letter-spacing: .02em`; large display Chinese gets `-.01em`.
 - All prices and numerals use `font-variant-numeric: tabular-nums` so they do not jitter.
 
 ### Imagery
 
-- **The crest** lives at `public/logo.png` — the official club mark with its white
+- **The crest** lives at `public/logo.png` - the official club mark with its white
   background knocked out so it sits cleanly on the warm card gradients. `lib/logo.ts`
   resolves it at runtime and it drives the header, every product card, the auth pages, and
   the favicon. Replace that one file to change the mark everywhere;
@@ -249,7 +249,7 @@ component classes below them sit inside `@layer components` so Tailwind utilitie
   to 2000px and compressed since it sits under a heavy scrim). It is painted by a fixed
   `body::before` layer rather than `background-attachment: fixed`, which iOS Safari
   ignores. Adjust the scrim opacities in `app/globals.css` to bring the photo forward or
-  push it back — they are tuned so the dense white cards stay legible on top.
+  push it back - they are tuned so the dense white cards stay legible on top.
 
 ---
 
@@ -259,7 +259,7 @@ Hosted on Netlify: **https://umn-ttc-membership.netlify.app**
 
 Netlify project `umn-ttc-membership` (team `aidanlim`, Starter plan) serves the app; the
 database is Neon project `polished-frost-62345290`, branch `production`, in AWS
-`us-east-2`. That region is deliberate — Netlify Functions default to Ohio, so the database
+`us-east-2`. That region is deliberate - Netlify Functions default to Ohio, so the database
 sits in the same AWS region as the functions querying it.
 
 Deploy from this directory:
@@ -276,7 +276,7 @@ Note that `neon link` overwrites `DATABASE_URL` in `.env` with the production va
 after running it `npm run dev` talks to production until you point it back at the local
 container from step 1 above.
 
-Previously hosted on Railway, dropped because its free credit lasts about a month — see
+Previously hosted on Railway, dropped because its free credit lasts about a month - see
 `## Deploying to Netlify + Neon` for why Vercel's Hobby plan is not an option either.
 
 ### Writing migrations by hand
@@ -290,19 +290,19 @@ order you intend.
 
 ## Deploying to Netlify + Neon
 
-Both tiers are free with no expiry, and both permit commercial use — which matters here,
+Both tiers are free with no expiry, and both permit commercial use - which matters here,
 because the site sells memberships. (Vercel's Hobby plan does not: its fair-use terms name
 "a paid membership" as commercial.)
 
 1. **Neon.** Create a project, then copy *two* connection strings from the dashboard:
-   - `DATABASE_URL` — the **pooled** one (host contains `-pooler`). Serverless functions
+   - `DATABASE_URL` - the **pooled** one (host contains `-pooler`). Serverless functions
      open a connection per invocation, so the app must go through the pooler.
-   - `DIRECT_URL` — the **unpooled** one. Only `prisma migrate deploy` uses it; the pooled
+   - `DIRECT_URL` - the **unpooled** one. Only `prisma migrate deploy` uses it; the pooled
      endpoint cannot hold the advisory lock Prisma takes while migrating.
 2. **Env vars.** Set every key from `.env.example` in Netlify → Site configuration →
    Environment variables, plus `DIRECT_URL`.
 3. **Schema.** `npx prisma migrate deploy` then `npm run db:seed` once, run locally with
-   `DIRECT_URL` pointed at Neon. Afterwards production deploys migrate themselves — see
+   `DIRECT_URL` pointed at Neon. Afterwards production deploys migrate themselves - see
    the `[context.production]` build command in `netlify.toml`.
 4. **Webhooks.** Point the Stripe and PayPal webhooks at the Netlify domain and update
    `STRIPE_WEBHOOK_SECRET` / `PAYPAL_WEBHOOK_ID` with the values those dashboards issue.
@@ -317,7 +317,7 @@ so a preview build applying a branch's unmerged schema change would corrupt live
 
 ```
 app/
-  page.tsx                     shop home — hero, category rail, product grid
+  page.tsx                     shop home - hero, category rail, product grid
   products/[slug]/             product detail, date picker, buy panel
   checkout/[orderId]/          payment methods, order summary, success page
   account/                     membership status + purchase history
@@ -326,7 +326,7 @@ app/
   api/paypal/ api/stripe/      create · capture/confirm · webhook
   api/register/                email + password sign-up
 lib/
-  eligibility.ts               who may buy what — the one source of truth
+  eligibility.ts               who may buy what - the one source of truth
   fulfill.ts                   idempotent "payment ⇒ entitlement" path
   sheets.ts                    Google Sheets append (never throws)
   catalog.ts dates.ts money.ts products.ts logo.ts auth.ts db.ts session.ts

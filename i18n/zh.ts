@@ -34,7 +34,6 @@ export const zh: Dict = {
   'product.dateRequired': '请先选择日期',
   'product.selected': '已选',
   'product.whatsIncluded': '包含内容',
-  'product.needHelp': '自带球拍或借用俱乐部球拍均可，无需额外付费。',
 
   'badge.hot': '热门',
   'badge.bestValue': '超值',

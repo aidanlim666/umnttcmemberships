@@ -3,7 +3,7 @@ import { logoSrc } from "@/lib/logo";
 
 /**
  * The club crest. A square box with `object-contain` means the real logo can have any
- * proportions — it is letterboxed rather than distorted, and next/image never has to
+ * proportions - it is letterboxed rather than distorted, and next/image never has to
  * guess an intrinsic aspect ratio it cannot know.
  */
 export function Logo({

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Subset HarmonyOS Sans SC down to the glyphs this UI actually uses.
 #
-# A full SC face is ~4.3 MB — far too heavy to ship. Everything on this site is drawn
+# A full SC face is ~4.3 MB - far too heavy to ship. Everything on this site is drawn
 # from a small, known set of characters (the UI strings plus digits and punctuation),
 # so the subset lands in the tens of KB.
 #
@@ -14,7 +14,7 @@
 #   2. Put HarmonyOS_Sans_SC_Bold.ttf (or Regular) in vendor/fonts/
 #   3. ./scripts/subset-font.sh
 #
-# The site renders correctly without this step — the @font-face in app/globals.css
+# The site renders correctly without this step - the @font-face in app/globals.css
 # simply falls through to the system stack.
 
 set -euo pipefail
@@ -45,7 +45,7 @@ node -e '
   const read = (f) => require("fs").readFileSync(path.join(root, "i18n", f), "utf8");
   // Dictionary values plus the product copy in the seed, plus digits and punctuation.
   const sources = [read("en.ts"), read("zh.ts"), read("../lib/catalog.ts")].join("");
-  const extra = "0123456789$.,:%/–—·()[]{}+-=@#&*!?’“”";
+  const extra = "0123456789$.,:%/–-·()[]{}+-=@#&*!?’“”";
   const chars = new Set([...sources, ...extra]);
   process.stdout.write([...chars].join(""));
 ' "$ROOT" > "$TEXT_FILE"

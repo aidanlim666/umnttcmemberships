@@ -18,7 +18,7 @@ const bodySchema = z.object({
 
 /**
  * Creates an order. There are no accounts: the buyer identifies themselves here, and the
- * details are taken on trust because nothing about a name or email needs to be trusted —
+ * details are taken on trust because nothing about a name or email needs to be trusted -
  * they are for the club's records, not for access control.
  *
  * What the server does still decide for itself is everything that touches money: the price

@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const signature = request.headers.get("stripe-signature");
   if (!signature) return NextResponse.json({ error: "noSignature" }, { status: 400 });
 
-  // The raw body is required for signature verification — do not parse it first.
+  // The raw body is required for signature verification - do not parse it first.
   const raw = await request.text();
 
   let event: Stripe.Event;

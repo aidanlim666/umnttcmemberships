@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ Fonts
-   Body uses the system stack — zero bytes, native rendering everywhere.
+   Body uses the system stack - zero bytes, native rendering everywhere.
    HarmonyOS Sans SC is self-hosted for display type. If the subset file is not
    present (see scripts/subset-font.sh) the stack simply falls through to the
    system faces, so the site never depends on the font shipping. */
@@ -26,7 +26,7 @@
   --gold-deep: #e0a800;
   --gold-wash: #fff4d6;
 
-  /* Warm ground — the off-white that carries the whole Taobao/Meituan look */
+  /* Warm ground - the off-white that carries the whole Taobao/Meituan look */
   --ground: #f7f1ec;
   --surface: #ffffff;
   --surface-warm: #fffaf5;
@@ -66,7 +66,7 @@
   --font-display: var(--font-display);
 }
 
-/* This design is deliberately light-only — the warm ground is the point. */
+/* This design is deliberately light-only - the warm ground is the point. */
 html {
   color-scheme: light;
   background: var(--ground);
@@ -108,7 +108,7 @@ body::before {
 }
 
 /* Chinese needs a touch of tracking at body size and a touch less at display size.
-   Never synthesise italics for Chinese — emphasis comes from weight. */
+   Never synthesise italics for Chinese - emphasis comes from weight. */
 :lang(zh) body,
 html[lang="zh"] body {
   letter-spacing: 0.02em;
@@ -269,7 +269,7 @@ html[lang="zh"] em {
     box-shadow: 0 0 0 3px rgba(157, 22, 49, 0.12);
   }
 
-  /* Announcement strip — the scrolling notice bar every Chinese app has. */
+  /* Announcement strip - the scrolling notice bar every Chinese app has. */
   .marquee {
     overflow: hidden;
     position: relative;

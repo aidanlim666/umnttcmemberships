@@ -1,6 +1,6 @@
 import { formatUsd } from "@/lib/money";
 
-/** Big red price with tabular figures — the anchor of every commerce card. */
+/** Big red price with tabular figures - the anchor of every commerce card. */
 export function PriceTag({
   cents,
   tbdLabel,

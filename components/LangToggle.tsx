@@ -7,7 +7,7 @@ import { LANG_COOKIE } from "@/i18n/config";
 
 /**
  * Writes the language cookie client-side and refreshes so the server re-renders
- * every string — including the ones that come out of the database.
+ * every string - including the ones that come out of the database.
  */
 export function LangToggle() {
   const { lang, t } = useLang();

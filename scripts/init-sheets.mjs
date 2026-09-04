@@ -25,7 +25,7 @@ const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const privateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, "\n");
 
 if (!sheetId || !clientEmail || !privateKey) {
-  console.error("Not configured — run: npm run sheets:setup -- <service-account.json> <spreadsheet-id>");
+  console.error("Not configured - run: npm run sheets:setup -- <service-account.json> <spreadsheet-id>");
   process.exit(1);
 }
 

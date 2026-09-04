@@ -91,9 +91,6 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
               ))}
             </ul>
 
-            <p className="mt-4 text-[12px] leading-relaxed text-[var(--ink-3)]">
-              {t("product.needHelp")}
-            </p>
           </div>
         </div>
 

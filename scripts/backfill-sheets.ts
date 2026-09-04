@@ -22,7 +22,7 @@ const PROVIDER_LABEL: Record<string, string> = {
 async function main() {
   const client = sheetsClient();
   if (!client) {
-    console.error("Sheets is not configured — nothing to backfill into.");
+    console.error("Sheets is not configured - nothing to backfill into.");
     process.exit(1);
   }
   const { sheets, sheetId } = client;

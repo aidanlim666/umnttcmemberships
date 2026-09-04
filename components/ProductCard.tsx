@@ -28,7 +28,7 @@ export function ProductCard({
           src={PRODUCT_IMAGE[product.kind]}
           alt={product.name}
           fill
-          // Two per row on phones, up to four on desktop — keeps the browser from
+          // Two per row on phones, up to four on desktop - keeps the browser from
           // fetching a full-width file for a card that is never wider than ~360px.
           sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 50vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"

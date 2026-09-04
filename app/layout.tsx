@@ -7,7 +7,7 @@ import { Footer } from "@/components/Footer";
 import { logoSrc } from "@/lib/logo";
 
 export const metadata: Metadata = {
-  title: "UMN Table Tennis Club — Membership",
+  title: "UMN Table Tennis Club - Membership",
   description:
     "Buy a 2026–27 membership, semester pass, drop-in, or coached training session with the University of Minnesota Table Tennis Club.",
   icons: { icon: logoSrc() },

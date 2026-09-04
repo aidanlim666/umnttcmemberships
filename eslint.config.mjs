@@ -12,7 +12,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Netlify's build output — 100MB+ of bundled code that is not ours to lint, and
+    // Netlify's build output - 100MB+ of bundled code that is not ours to lint, and
     // large enough to exhaust the linter's heap.
     ".netlify/**",
     // Prisma's generated client.

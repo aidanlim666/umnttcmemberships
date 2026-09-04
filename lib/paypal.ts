@@ -3,7 +3,7 @@ import "@/lib/net";
  * Thin PayPal REST v2 client. Talking to the REST API directly (rather than the
  * server SDK) keeps the surface small: three calls is the whole integration.
  *
- * The same credentials power the Venmo button — Venmo is only reachable through
+ * The same credentials power the Venmo button - Venmo is only reachable through
  * PayPal's SDK, and only for US buyers on supported devices.
  */
 

@@ -3,7 +3,7 @@
  * Wires a Google service-account key into .env.
  *
  * The private key is a multi-line PEM block, which is the step people get wrong when
- * copying it by hand — it has to be escaped onto a single line. This does that for you.
+ * copying it by hand - it has to be escaped onto a single line. This does that for you.
  *
  * Usage:
  *   node scripts/setup-sheets.mjs ~/Downloads/umnttc-sheets-abc123.json <spreadsheet-id>
@@ -27,7 +27,7 @@ try {
 }
 
 if (!key.client_email || !key.private_key) {
-  console.error("That file is missing client_email / private_key — is it the service account JSON key?");
+  console.error("That file is missing client_email / private_key - is it the service account JSON key?");
   process.exit(1);
 }
 

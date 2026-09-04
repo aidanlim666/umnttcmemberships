@@ -1,4 +1,4 @@
-// UMN Table Tennis Club — membership & purchases
+// UMN Table Tennis Club - membership & purchases
 // Docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -28,7 +28,7 @@ model Product {
   nameZh       String
   descEn       String
   descZh       String
-  // Null means "price to be announced" — the product renders but cannot be bought.
+  // Null means "price to be announced" - the product renders but cannot be bought.
   priceCents   Int?
   requiresDate Boolean     @default(false)
   active       Boolean     @default(true)
@@ -48,7 +48,7 @@ enum OrderStatus {
 enum PaymentProvider {
   PAYPAL
   STRIPE
-  // Settled by a promo code that brought the total to zero — no processor involved.
+  // Settled by a promo code that brought the total to zero - no processor involved.
   PROMO
 }
 
@@ -57,7 +57,7 @@ model Order {
   productId String
 
   // The buyer, captured on the product page. There are no accounts, so this is the only
-  // record of who bought — self-asserted and never verified.
+  // record of who bought - self-asserted and never verified.
   buyerName  String
   buyerEmail String
   // Self-assessed, asked only for dated day passes so the club can seed a new player into
@@ -106,6 +106,6 @@ model Membership {
   orderId   String         @unique
   createdAt DateTime       @default(now())
 
-  // The buyer is read through the order — there is no account to point at.
+  // The buyer is read through the order - there is no account to point at.
   order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }

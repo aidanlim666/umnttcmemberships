@@ -19,7 +19,7 @@ export async function Header() {
             </span>
           </Link>
 
-          {/* Top-right: the language toggle, and nothing else — there are no accounts. */}
+          {/* Top-right: the language toggle, and nothing else - there are no accounts. */}
           <div className="ml-auto flex items-center gap-2">
             <LangToggle />
           </div>

@@ -116,7 +116,7 @@ export function BuyPanel({
           <span className="mt-1 block text-[11px] text-[var(--ink-3)]">{t("buyer.emailHint")}</span>
         </label>
 
-        {/* Only dated day passes ask this — it exists to place a new player in the right group. */}
+        {/* Only dated day passes ask this - it exists to place a new player in the right group. */}
         {requiresDate && (
           <fieldset className="block border-0 p-0">
             <legend className="mb-1.5 block text-[12.5px] font-bold">{t("buyer.level")}</legend>
@@ -164,7 +164,7 @@ export function BuyPanel({
       </button>
 
       {/* Mirrors the inline button exactly, so the bar never promises an action the page
-          cannot deliver — the form sits directly above it either way. */}
+          cannot deliver - the form sits directly above it either way. */}
       <StickyBar priceLabel={promo ? formatUsd(promo.amountCents) : priceLabel}>
         <button
           type="button"
@@ -181,7 +181,7 @@ export function BuyPanel({
 
 /**
  * The always-visible price + action bar that Chinese commerce apps put at the bottom of
- * every product page. Mobile only — on desktop the purchase card is already pinned.
+ * every product page. Mobile only - on desktop the purchase card is already pinned.
  */
 function StickyBar({
   priceLabel,

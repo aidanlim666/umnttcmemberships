@@ -35,8 +35,6 @@ export const en = {
   'product.dateRequired': 'Pick a date to continue',
   'product.selected': 'Selected',
   'product.whatsIncluded': 'What you get',
-  'product.needHelp':
-      'Bring your own paddle or borrow one of the club\'s — either way you\'re covered.',
 
   'badge.hot': 'Popular',
   'badge.bestValue': 'Best value',
