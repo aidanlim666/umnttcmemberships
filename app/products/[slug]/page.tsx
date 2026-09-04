@@ -20,7 +20,7 @@ const PERKS_BY_KIND = {
   FALL_MEMBERSHIP: ["home.perk1", "home.perk2", "home.perk4"],
   LEAGUE_DROPIN: ["perk.oneTimeLeague"],
   OPENPLAY_DROPIN: ["perk.oneTimeOpenPlay"],
-  TRAINING: ["home.perk3", "home.perk4"],
+  TRAINING: ["home.perk4"],
 } as const satisfies Record<ProductKind, readonly TranslateKey[]>;
 
 export default async function ProductPage({ params }: PageProps<"/products/[slug]">) {
@@ -72,7 +72,9 @@ export default async function ProductPage({ params }: PageProps<"/products/[slug
             <h1 className="display mt-2 text-[1.4rem] font-extrabold leading-tight sm:text-[1.75rem]">
               {view.name}
             </h1>
-            <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--ink-2)]">{view.desc}</p>
+            {view.desc && (
+              <p className="mt-2 text-[13.5px] leading-relaxed text-[var(--ink-2)]">{view.desc}</p>
+            )}
 
             <h2 className="display mt-5 text-[13px] font-bold text-[var(--ink-2)]">
               {t("product.whatsIncluded")}

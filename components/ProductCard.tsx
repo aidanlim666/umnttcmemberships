@@ -43,9 +43,12 @@ export function ProductCard({
         <h3 className="display line-clamp-2 text-[13.5px] font-bold leading-snug sm:text-[15px]">
           {product.name}
         </h3>
-        <p className="line-clamp-2 text-[11.5px] leading-relaxed text-[var(--ink-3)]">
-          {product.desc}
-        </p>
+        {/* A product may have no description; don't leave a blank line where it would be. */}
+        {product.desc && (
+          <p className="line-clamp-2 text-[11.5px] leading-relaxed text-[var(--ink-3)]">
+            {product.desc}
+          </p>
+        )}
 
         <div className="mt-auto flex items-end justify-between gap-2 pt-1.5">
           <PriceTag cents={product.priceCents} tbdLabel={t("product.priceTbd")} />

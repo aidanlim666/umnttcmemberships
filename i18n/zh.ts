@@ -16,7 +16,6 @@ export const zh: Dict = {
 
   'home.perk1': '无限次 open play',
   'home.perk2': '每周五 league 免费参加',
-  'home.perk3': '可选教练课程',
   'home.perk4': '各水平皆宜',
   'perk.oneTimeLeague': '单次 league play',
   'perk.oneTimeOpenPlay': '单次 open play',

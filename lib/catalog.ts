@@ -95,10 +95,9 @@ export const SEED_PRODUCTS = [
     kind: "TRAINING" as ProductKind,
     nameEn: "Coached Training Session",
     nameZh: "教练训练课",
-    descEn:
-      "Structured coaching with the club's training staff - footwork, multiball, and match play. Sold separately and never included in a membership.",
-    descZh:
-      "由俱乐部教练组带训的系统课程：步法、多球与实战。单独售卖，不包含在任何会员方案内。",
+    // No description: the club would rather let the photo and price speak for this one.
+    descEn: "",
+    descZh: "",
     priceCents: null as number | null,
     requiresDate: false,
     sortOrder: 5,

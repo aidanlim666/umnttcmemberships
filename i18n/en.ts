@@ -17,7 +17,6 @@ export const en = {
 
   'home.perk1': 'Unlimited open play',
   'home.perk2': 'Free league entry every Friday',
-  'home.perk3': 'Coaching available',
   'home.perk4': 'All skill levels',
   'perk.oneTimeLeague': 'One time league play',
   'perk.oneTimeOpenPlay': 'One time open play',
